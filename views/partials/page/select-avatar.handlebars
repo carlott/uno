@@ -1,0 +1,38 @@
+<img id="avatar" src="/images/splash/default-user-icon.png" alt="from list below" height="70">
+
+<select class="form-control" id="selectAvatar" size="1">
+<!--    <option>Select...</option> -->
+    {{#each avatars}}
+      <option title={{this.image_url}} class="tooltips" image={{this.image_url}}>{{this.id}}</option>
+    {{/each}}
+</select>
+
+<script>
+  $(function() {
+    const IMAGE_PATH = '/images/avatars/'
+    var $avatarId, image
+    $('select').mouseover(function() {
+      var n = $('select option').length
+      $(this).attr('size', n)
+    })
+    $('select').mouseout(function() {
+      $('#image_tooltip img').attr('src', '')
+      $(this).attr('size', 1)
+    })
+    $('select').on('mouseenter', 'option', function(e) {
+      image = '<img src='+IMAGE_PATH+$(this).attr('image')+' height="70">'
+      $('.tooltips').data('powertip', image)
+      $(this).click(function() {
+        $avatarId = $(e.target).text()  // assign the selected value
+        $('#avatar').attr('src', IMAGE_PATH+$(this).attr('image'))
+        $('select').attr('size', 1)
+      })
+    })
+
+    /* image_tooltip */
+    $('.tooltips').powerTip({
+      followMouse: true
+    })
+
+  })
+</script>
