@@ -1,7 +1,27 @@
-{{> page/nav}}
 <div class="container">
-  <h1>{{title}}</h1>
-  <p>Welcome to {{title}}</p>
-  <p>This is for my uno index page</p>
+    <div class="jumbotron">
+        <img id="play-uno" src="/images/splash/play-uno.png" class="img-responsive home-play" alt="Play UNO">
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="well">
+                <a href="#" role="button" data-toggle="modal" data-target="#signUpModal" class="btn btn-primary btn-lg btn-block">Sign Up</a>
+                <h3>Not have an account yet, register now</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="well">
+                <a href="#" role="button" data-toggle="modal" data-target="#loginModal" class="btn btn-primary btn-lg btn-block">Log In</a>
+                <h3>Enjoy your game & have a nice day</h3>
+            </div>         
+        </div>
+        <div class="col-md-4">
+            <div class="well">
+                <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
+                {{> page/guest-modal}}
+                <h3>Your name, avatar, and scores will lost after you left</h3>
+            </div>
+        </div>         
+    </div>
 </div>
-{{> page/footer}}
