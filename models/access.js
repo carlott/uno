@@ -21,7 +21,11 @@ const CARDS_IN_PLAYERS = `SELECT user_id, COUNT(user_id) AS cardCount
 const GET_PILE_CARDID = `SELECT card_id
                          FROM Game_Cards
                          WHERE game_id = $1
-                         AND pile_order = $2`                          
+                         AND pile_order = $2`
+
+const GET_EMAIL_ADDRESS = `SELECT *
+                           FROM Users
+                           WHERE email = $1`                                                  
 
 const GAME_CARDS = `SELECT * FROM Game_Cards
                     WHERE game_id = $1` 
@@ -57,6 +61,7 @@ module.exports = {
 
   gameCards: (game_id) => db.any(GAME_CARDS, game_id),
   getPileCardId: (game_id, pile_order) => db.oneOrNone(GET_PILE_CARDID, [game_id, pile_order]),
+  getEmailAddress: (email) => db.any(GET_EMAIL_ADDRESS, email),
   thisGamePlayers: (game_id) => db.any(THISGAME_PLAYERS, game_id),
   thisPlayer: (game_id, user_id) => db.any(THIS_PLAYER, [game_id, user_id]),
   thisGame: (game_id) => db.any(THIS_GAME, game_id),

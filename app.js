@@ -4,11 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+const expressValidator = require('express-validator')
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+// views' globals
+const access = require('./models/access')
+access.avatars().then(data => {
+  app.locals.AVATARS = data
+  return access.cards()
+}).then(data => {
+  app.locals.CARDS = JSON.stringify(data)
+}).catch(error => {
+  console.log(error)
+})
+
 
 // view engine setup
 const exphbs = require('express-handlebars')
@@ -23,6 +36,7 @@ app.set('view engine', '.hbs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(expressValidator())
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -1,27 +1,20 @@
-<div class="container">
+{{> page/nav}}
+<div class="container-fluid">
     <div class="jumbotron">
         <img id="play-uno" src="/images/splash/play-uno.png" class="img-responsive home-play" alt="Play UNO">
     </div>
-
-    <div class="row">
-        <div class="col-md-4">
-            <div class="well">
-                <a href="#" role="button" data-toggle="modal" data-target="#signUpModal" class="btn btn-primary btn-lg btn-block">Sign Up</a>
-                <h3>Not have an account yet, register now</h3>
-            </div>
+    <div class="col-md-6 center">
+        <div class="well">
+            <h3>UNO is an American card game. Its rule is simple. For details please access to the  
+                <a href="/about">about</a> page.
+            </h3>
+            <h3>Log in to enjoy the game</h3>
+            <p>(sign up, log in bottons are at the top-right navigation bar)</p>
+            <h3>Sign up if you are a new player</h3>
+            <h3>Or join as a guest</h3>
+            <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
+            {{> page/guest-modal }}
         </div>
-        <div class="col-md-4">
-            <div class="well">
-                <a href="#" role="button" data-toggle="modal" data-target="#loginModal" class="btn btn-primary btn-lg btn-block">Log In</a>
-                <h3>Enjoy your game & have a nice day</h3>
-            </div>         
-        </div>
-        <div class="col-md-4">
-            <div class="well">
-                <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
-                {{> page/guest-modal}}
-                <h3>Your name, avatar, and scores will lost after you left</h3>
-            </div>
-        </div>         
     </div>
 </div>
+{{> page/footer}}

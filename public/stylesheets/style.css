@@ -19,6 +19,8 @@
 }
 
 body {
+  height: 100%;
+  overflow: auto;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   /* Margin bottom by footer height */
   margin-bottom: 40px;
@@ -26,6 +28,12 @@ body {
 
 a {
   color: #00B7FF;
+}
+
+.center {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Sticky footer styles
@@ -49,7 +57,10 @@ html {
 /* Not required for template or sticky footer method. */
 
 body > .container {
+  position: absolute;
+  height: 100%;
   padding: 0;
+  overflow-y: auto;
 }
 .container .text-muted {
   margin: 20px 0;
@@ -63,8 +74,35 @@ code {
   font-size: 80%;
 }
 
+/* game board */
+.gameroom {
+  height: 100%;
+  background-color: #89EAB3;
+}
+.gameroom > .row {
+  box-sizing: border-box;
+  border: 1px solid red;
+  height: 15%;
+}
+.gameroom .card-pile {
+  height: 35%;
+}
+.left-arrow, .right-arrow {
+  min-height: 40px;
+}
+
+/* chat room for lobby and game */
+.chatroom {
+  height: 100%;
+  width: 100%;
+}
+.panel-body {
+  height: 100%;
+  overflow-y: auto;
+}
+
 /* powertip */
-#image_tooltip div {
+.image_tooltip div {
   background-color: #EEE;
   border: 1px solid #CCC;
   border-radius: 3px;
@@ -73,7 +111,13 @@ code {
   padding: 20px;
 }
 
+/* home page image */
 #play-uno {
   margin: auto;
   max-width: 80%;
+}
+
+/* warning from server */
+.warning {
+  color: red;
 }

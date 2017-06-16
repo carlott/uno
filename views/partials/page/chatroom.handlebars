@@ -1,0 +1,24 @@
+<div class="chatroom">
+  <div class="panel panel-primary">
+    <div class="panel-heading">{{chatroom}} Chat Room</div>
+    <div class="panel-body">
+      {{messages}}
+    </div>
+    <div class="panel-footer">
+      <form action="sendMessage">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Enter message" name="message">
+        </div>
+        <button type="reset" class="btn btn-default">Reset</button>
+        <button type="submit" class="btn btn-info">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(function() {
+    $('.chatroom .panel-body').height($('html').height() - 310)
+    $('.gameroom').height($('.chatroom').height() - 20)
+  })
+</script>

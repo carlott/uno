@@ -24,34 +24,30 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 
-                <form role="form">
-                  <div class="form-group">
-                    <label for="userName">User name</label>
-                      <input type="name" class="form-control"
-                      id="userName" placeholder="Enter name"/>
-                  </div>
-                  <div class="form-group">
-                    <label for="signUpEmail">Email address</label>
-                      <input type="email" class="form-control"
-                      id="signUpEmail" placeholder="Enter email"/>
-                  </div>
-                  <div class="form-group">
-                    <label for="signUpPassword">Password</label>
-                      <input type="password" class="form-control"
-                          id="signUpPassword" placeholder="Password"/>
-                  </div>
-                  <div class="form-group">
-                    <label for="confirmPassword">Confirm password</label>
-                      <input type="password" class="form-control"
-                          id="confirmPassword" placeholder="Password"/>
-                  </div>
-
+                <form role="form" method="post" action="signup">
                   <div class="form-group">
                     <label for="selectAvatar">Select avatar:</label>
                     {{> page/select-avatar}}
                   </div>
+                  <div class="form-group">
+                    <label for="userName">User name</label>
+                      <input type="name" class="form-control" name="userName" required
+                      id="signUpUserName" placeholder="Enter name"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="signUpEmail">Email address</label>
+                      <input type="email" class="form-control" name="email" required
+                        id="signUpEmail" placeholder="Enter email"/>
+                      <p id="signUpEmailWarning" class="warning collapse">The email is already registered, please choose another one.</p>
+                  </div>
+                  <div class="form-group">
+                    <label for="signUpPassword">Password</label>
+                      <input type="password" class="form-control" name="password" required
+                          id="signUpPassword" placeholder="Password"/>
+                  </div>
                 
-                  <button class="btn btn-default">Cancel</button>
+                  <button type="reset" class="btn btn-default reset-button">Reset</button>
+                  <button class="btn btn-default" formnovalidate>Cancel</button>
                   <button type="submit" class="btn btn-primary"
                         id="signUpSubmit">Sign Up</button>
                 </form>
@@ -60,3 +56,19 @@
         </div>
     </div>
 </div>
+
+<script>
+  $(function() {
+    $('#signUpEmail').focusout(function() {
+      // ajax call will go here
+      $.get('/signup/email-address', { emailAddress: $('#signUpEmail').val() }
+            , function(response) {
+              if(response == "TAKEN") {
+                $('#signUpEmailWarning').addClass("in")
+              } else {
+                $('#signUpEmailWarning').removeClass("in")
+              }
+            })
+    })
+  })
+</script>

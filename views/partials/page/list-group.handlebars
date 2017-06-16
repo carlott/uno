@@ -1,0 +1,12 @@
+<div class="center">
+  <button type="submit" class="btn btn-lg btn-block btn-warning">Create a Game Room</button>
+</div>
+{{#if groups}}
+<h3>Or Join an Available Room</h3>
+
+<ul class="list-group">
+  {{#each groups}}
+    <li class="list-group-item">New <span class="badge">12</span></li>
+  {{/each}}
+</ul>
+{{/if}}

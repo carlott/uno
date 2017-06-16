@@ -24,19 +24,21 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 
-                <form role="form">
+                <form class="loginForm" role="form" data-async data-target=".loginWarning" action="login" method="POST">
+                  <p id="loginWarning" class="warning collapse">Invalid email or password, please try again.</p>
                   <div class="form-group">
                     <label for="loginEmail">Email address</label>
-                      <input type="email" class="form-control"
+                      <input type="email" class="form-control" required
                       id="loginEmail" placeholder="Enter email"/>
                   </div>
                   <div class="form-group">
                     <label for="loginPassword">Password</label>
-                      <input type="password" class="form-control"
+                      <input type="password" class="form-control" required
                           id="loginPassword" placeholder="Password"/>
                   </div>
-                  <button class="btn btn-default">Cancel</button>
-                  <button type="submit" class="btn btn-primary"
+                  <button type="reset" class="btn btn-default">Reset</button>
+                  <button class="btn btn-default" formnovalidate>Cancel</button>
+                  <button class="btn btn-primary" type="submit"
                         id="loginSubmit">Log In</button>
                 </form>
                 
@@ -44,3 +46,27 @@
         </div>
     </div>
 </div>
+
+<script>
+  $(function() {
+    $('.loginForm').submit(function(e) {
+        e.preventDefault()
+        var emailPass = { email: $('#loginEmail').val(), password: $('#loginPassword').val() }
+        console.log('email %s pass %s', emailPass.email, emailPass.password)
+      $.post('/login', emailPass
+            , function(response) {
+                if(response == "INVALID") {
+                    $('#loginWarning').addClass("in")
+                } else {
+                    $('#loginWarning').removeClass("in")
+                }
+              })
+//        login()
+    })
+  })
+
+  function login() {
+    console.log('login form submit to function login() email: %s pass: %s', $('#loginEmail').val(), $('#loginPassword').val())
+//    $.post('/login', )
+  }
+</script>
