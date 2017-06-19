@@ -23,9 +23,11 @@ const GET_PILE_CARDID = `SELECT card_id
                          WHERE game_id = $1
                          AND pile_order = $2`
 
-const GET_EMAIL_ADDRESS = `SELECT *
-                           FROM Users
-                           WHERE email = $1`                                                  
+const LOGIN = `SELECT Users.id, Users.nick_name, Avatars.image_url
+               FROM Users, Avatars
+               WHERE Users.avatar_id = Avatars.id
+               AND email = $1
+               AND encrypted_password = $2`
 
 const GAME_CARDS = `SELECT * FROM Game_Cards
                     WHERE game_id = $1` 
@@ -61,12 +63,12 @@ module.exports = {
 
   gameCards: (game_id) => db.any(GAME_CARDS, game_id),
   getPileCardId: (game_id, pile_order) => db.oneOrNone(GET_PILE_CARDID, [game_id, pile_order]),
-  getEmailAddress: (email) => db.any(GET_EMAIL_ADDRESS, email),
   thisGamePlayers: (game_id) => db.any(THISGAME_PLAYERS, game_id),
   thisPlayer: (game_id, user_id) => db.any(THIS_PLAYER, [game_id, user_id]),
   thisGame: (game_id) => db.any(THIS_GAME, game_id),
 
   // for send to client(s)
+  login: (email, password) => db.oneOrNone(LOGIN, [email, password]),
   cardsInHand: (game_id, user_id) => db.any(CARDS_IN_HAND, [game_id, user_id]),
   playersThisGroup: (game_id) => db.any(PLAYERS_THIS_GROUP, game_id),
   cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id)

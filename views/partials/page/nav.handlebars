@@ -16,8 +16,9 @@
         <li><a href="/about">About</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-				{{#if user_id}}
-					<li><a href="/logout"><span class="glyphicon glyphicon-user"></span> Log Out</a></li>
+				{{#if userId}}
+					<li><a>Hello, {{userName}}</a></li>
+          <li><a href="/logout" class="logOutButton"><img class="user-image" src="/images/avatars/{{userImage}}"> Log Out</a></li>
 				{{else}}
           <li><a href="#" role="button" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
             {{> page/signup-modal}}

@@ -52,21 +52,21 @@
     $('.loginForm').submit(function(e) {
         e.preventDefault()
         var emailPass = { email: $('#loginEmail').val(), password: $('#loginPassword').val() }
-        console.log('email %s pass %s', emailPass.email, emailPass.password)
       $.post('/login', emailPass
             , function(response) {
+                console.log('response: ', response)
                 if(response == "INVALID") {
                     $('#loginWarning').addClass("in")
                 } else {
+                    $('#loginModal').modal('hide')
                     $('#loginWarning').removeClass("in")
+                    setTimeout(function() {
+                        alert('You have successfully logged in.')
+                        window.location.href = '/lobby'
+                    }, 100)
                 }
               })
-//        login()
     })
   })
 
-  function login() {
-    console.log('login form submit to function login() email: %s pass: %s', $('#loginEmail').val(), $('#loginPassword').val())
-//    $.post('/login', )
-  }
 </script>

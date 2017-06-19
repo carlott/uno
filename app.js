@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 const expressValidator = require('express-validator')
+const session = require('express-session')
+const uuidv1 = require('uuid/v1')
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -15,9 +17,10 @@ var app = express();
 const access = require('./models/access')
 access.avatars().then(data => {
   app.locals.AVATARS = data
+  app.locals.JSON_AVATARS = JSON.stringify(data)
   return access.cards()
 }).then(data => {
-  app.locals.CARDS = JSON.stringify(data)
+  app.locals.JSON_CARDS = JSON.stringify(data)
 }).catch(error => {
   console.log(error)
 })
@@ -39,6 +42,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator())
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  genid: function(req) {
+    return uuidv1()
+  },
+  secret: 'super problem solver',
+  resave: false,
+  saveUninitialized: false
+}))
 
 app.use('/', index);
 app.use('/users', users);

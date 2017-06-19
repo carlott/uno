@@ -15,7 +15,10 @@
 .navbar-brand > img {
   max-height: 150%;
   margin: -5px auto;
-
+}
+.user-image {
+  max-height: 30px;
+  margin: -5px auto;
 }
 
 body {

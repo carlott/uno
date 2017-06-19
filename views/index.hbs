@@ -5,16 +5,26 @@
     </div>
     <div class="col-md-6 center">
         <div class="well">
-            <h3>UNO is an American card game. Its rule is simple. For details please access to the  
+            <h3>UNO is an American card game. Its rule is simple.</h3>
+            <h3> For details please access to the  
                 <a href="/about">about</a> page.
             </h3>
-            <h3>Log in to enjoy the game</h3>
-            <p>(sign up, log in bottons are at the top-right navigation bar)</p>
-            <h3>Sign up if you are a new player</h3>
-            <h3>Or join as a guest</h3>
-            <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
-            {{> page/guest-modal }}
+            {{#if userName}}
+                <h3>Hello {{userName}},</h3>
+                <h3>Not yet playing in a game? Go to
+                    <a href="/lobby">lobby</a> to join a group,</h3>
+                <h3>  or you can create a new group there.</h3>
+                <h3>Enjoy it!</h3>
+            {{else}}
+                <h3>Log in to enjoy the game</h3>
+                <p>(sign up, log in bottons are at the top-right navigation bar)</p>
+                <h3>Sign up if you are a new player</h3>
+                <h3>Or play as a guest</h3>
+                <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
+                {{> page/guest-modal }}
+            {{/if}}
         </div>
     </div>
 </div>
+
 {{> page/footer}}

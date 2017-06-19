@@ -1,16 +1,25 @@
 const access = require('../../models/access')
+const userState = require('../user-state')
 
 const login = (req, res) => {
-  console.log('email: ', req.body.email)
-  access.getEmailAddress(req.body.email).then(data => {
-    if(data.length > 0 && data[0].encrypted_password === req.body.password) {
-      res.status(200).send("VALID")
-      console.log('VALID ', data)
+  console.log('email: %s password: %s', req.body.email, req.body.password)
+  access.login(req.body.email, req.body.password)
+  .then(data => {
+    if(data !== null) {
+      console.log('data ', data)
+      req.session.regenerate(err => {
+        req.session.userId = data.id
+        req.session.userName = data.nick_name
+        req.session.userImage = data.image_url
+        var user = userState(req)
+        console.log('user state: ', user)
+        res.status(200).send("VALID")
+      })
     } else {
       res.status(200).send("INVALID")
-      Console.log('INVALID ', data)
-    }
-  }).catch(err => {
+    } 
+  })
+  .catch(err => {
     console.log(err)
   })
 }

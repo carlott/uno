@@ -3,7 +3,7 @@
 <select required class="form-control selectAvatar" size="1" name="avatarId">
   <option value="">Select one</span></option>
     {{#each AVATARS}}
-      <option title={{this.image_url}} class="tooltips" image={{this.image_url}}>{{this.id}}</option>
+      <option title={{{this.image_url}}} class="tooltips" image={{{this.image_url}}}>{{{this.id}}}</option>
     {{/each}}
 </select>
 

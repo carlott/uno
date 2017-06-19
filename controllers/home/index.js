@@ -1,21 +1,14 @@
 
-// const access = require('../../models/access.js')
-
-// const home = (req, res) => {
-//     access.avatars().then( data => {
-//       res.render('index', { title: 'UNO home', avatars: data });
-//     })
-//     .catch (Error => {
-//       console.log(Error)
-//     })
-// }
-
-// module.exports = home 
-
 const app = require('../../app.js')
+const userState = require('../user-state')
 
 const home = (req,res) => {
-  res.render('index', { title: 'UNO'}) //, avatars: req.app.locals.avatars})
+  if (req.session.isLogIn) {
+    console.log('user logged in at home page. userId: %s userName: %s session id: %s', req.session.userId, req.session.userName, req.session.id)
+  } else {
+    console.log('user not logged in home page ', req.session.id)
+  }
+  res.render('index', Object.assign({ title: 'UNO' }, userState(req)))
 }
 
 module.exports = home 

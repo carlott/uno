@@ -24,6 +24,7 @@
       <img class="img-responsive left-arrow" src="" alt="left arrow" height="60">
     </div>
     <div class="col-xs-6 col-sm-6">
+      <img class="img-responsive disc" src="">
       <img class="img-responsive discard-pile" src="" alt="discard">
       row 3 for uno button, discard pile, pass button
     </div>
@@ -49,10 +50,10 @@
 
 
 <script>
-  var jsonCards = {{{CARDS}}}
+  var jsonCards = {{{JSON_CARDS}}}
   console.log('cards ', jsonCards[0].image_url)
   $('.left-arrow').attr('src', '/images/splash/leftup.png')
     $('.right-arrow').attr('src', '/images/splash/rightdown.png')
-//    $('.discard-pile').attr('src', '/images/cards/'+jsonCards[0].image_url)
-    $('.discard-pile').attr('src', '/images/cards/'+{{{CARDS}}}[4].image_url)
+    $('.disc').attr('src', '/images/cards/'+jsonCards[30].image_url)
+    $('.discard-pile').attr('src', '/images/cards/'+{{{JSON_CARDS}}}[4].image_url)
 </script>
