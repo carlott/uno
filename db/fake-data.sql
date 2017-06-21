@@ -9,14 +9,14 @@ DROP TABLE IF EXISTS Avatars CASCADE;
 
 CREATE TABLE IF NOT EXISTS Avatars (
   id SERIAL PRIMARY KEY,
-  image_url VARCHAR(128) UNIQUE NOT NULL
+  image_url VARCHAR(32) UNIQUE NOT NULL
 );
 
 DROP TABLE IF EXISTS Cards CASCADE;
 
 CREATE TABLE IF NOT EXISTS Cards (
   id INTEGER PRIMARY KEY,
-  image_url VARCHAR(128),
+  image_url VARCHAR(32),
   point INTEGER NOT NULL,
   color VARCHAR(1),
   number_symbol SMALLINT
@@ -27,9 +27,9 @@ DROP TABLE IF EXISTS Users CASCADE;
 CREATE TABLE IF NOT EXISTS Users (
   id SERIAL PRIMARY KEY,
   avatar_id SMALLINT REFERENCES Avatars(id),
-  encrypted_password VARCHAR(256) NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  nick_name VARCHAR(32),
+  password VARCHAR(64) NOT NULL,
+  email VARCHAR(64) UNIQUE NOT NULL,
+  user_name VARCHAR(32),
   user_score INTEGER DEFAULT 0
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Messages (
   game_id INTEGER REFERENCES Games(id) ON DELETE CASCADE,
   user_id INTEGER REFERENCES Users(id),
   post_time TIME WITH TIME ZONE,
-  message VARCHAR(500)
+  message VARCHAR(256)
 );
 
 DROP TABLE IF EXISTS Game_Cards CASCADE;
@@ -203,7 +203,7 @@ INSERT INTO Avatars
   (9, 'teenage.png');
 
 INSERT INTO Users
-  (avatar_id, encrypted_password, email, nick_name, user_score)
+  (avatar_id, password, email, user_name, user_score)
   VALUES 
   (1, '123',  'a1@a', 'one', 200),
   (8, '123',  'a2@a', 'two', 0),

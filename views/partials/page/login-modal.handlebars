@@ -29,15 +29,15 @@
                   <div class="form-group">
                     <label for="loginEmail">Email address</label>
                       <input type="email" class="form-control" required
-                      id="loginEmail" placeholder="Enter email"/>
+                      id="loginEmail" placeholder="Enter email" onkeypress="return noEnter()"/>
                   </div>
                   <div class="form-group">
                     <label for="loginPassword">Password</label>
                       <input type="password" class="form-control" required
-                          id="loginPassword" placeholder="Password"/>
+                          id="loginPassword" placeholder="Password" onkeypress="return noEnter()"/>
                   </div>
                   <button type="reset" class="btn btn-default">Reset</button>
-                  <button class="btn btn-default" formnovalidate>Cancel</button>
+                  <button class="btn btn-default cancel-login" formnovalidate>Cancel</button>
                   <button class="btn btn-primary" type="submit"
                         id="loginSubmit">Log In</button>
                 </form>
@@ -50,12 +50,12 @@
 <script>
   $(function() {
     $('.loginForm').submit(function(e) {
-        e.preventDefault()
-        var emailPass = { email: $('#loginEmail').val(), password: $('#loginPassword').val() }
+      e.preventDefault()
+      var emailPass = { email: $('#loginEmail').val(), password: $('#loginPassword').val() }
       $.post('/login', emailPass
-            , function(response) {
-                console.log('response: ', response)
-                if(response == "INVALID") {
+            , function(res) {
+                console.log('response: ', res)
+                if(!res.success) {
                     $('#loginWarning').addClass("in")
                 } else {
                     $('#loginModal').modal('hide')
@@ -69,4 +69,12 @@
     })
   })
 
+  $('.cancel-login').click((e) => {
+      e.preventDefault()
+      $('#loginModal').modal('hide')
+  })
+
+  function noEnter() {
+      return !(window.event && window.event.keyCode == 13)
+  }
 </script>

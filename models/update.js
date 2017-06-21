@@ -1,14 +1,9 @@
 const db = require('../db/db')
 
-const SET_READY = `UPDATE Players
-                   SET ready_play = $1
-                   WHERE game_id = $2
-                   AND user_id = $3`
-
-const NEW_GAME_CARDS =  `INSERT INTO Game_Cards
-                          (game_id, card_id, user_id, pile_order)
-                        VALUES
-                          ($1,$2,$3,$4)`
+const ADD_PILE_ORDER = `UPDATE Game_Cards
+                        SET pile_order = null
+                        WHERE game_id = $1
+                        AND pile_order = $2`                           
 
 const DELETE_OLD_GAME_CARDS = `DELETE FROM Game_Cards
                                WHERE game_id = $1`
@@ -18,10 +13,30 @@ const DEALT_GAME_CARDS = `UPDATE Game_Cards
                           WHERE game_id = $2
                           AND pile_order = $3`
 
+const NEW_GAME_CARDS =  `INSERT INTO Game_Cards
+                          (game_id, card_id, user_id, pile_order)
+                        VALUES
+                          ($1,$2,$3,$4)`
+
+const NEW_USER = `INSERT INTO Users
+                   (avatar_id, password, email, user_name)
+                  VALUES
+                   ($1,$2,$3,$4)`
+
+const PLAY_NUMBER_CARD = `UPDATE Game_Cards
+                            SET user_id = null
+                            WHERE game_id = $1
+                            AND card_id = $2`
+
 const SET_PILE_ORDER_NULL = `UPDATE Game_Cards
                              SET pile_order = null
                              WHERE game_id = $1
                              AND pile_order = $2`
+
+const SET_READY = `UPDATE Players
+                   SET ready_play = $1
+                   WHERE game_id = $2
+                   AND user_id = $3`
 
 const START_GAME = `UPDATE Games
                     SET next_order = $1,
@@ -37,16 +52,6 @@ const UPDATE_GAME = `UPDATE Games
                          top_discard = $4,
                          game_state = $5
                      WHERE id = $6`
-
-const PLAY_NUMBER_CARD = `UPDATE Game_Cards
-                            SET user_id = null
-                            WHERE game_id = $1
-                            AND card_id = $2`
-
-const ADD_PILE_ORDER = `UPDATE Game_Cards
-                        SET pile_order = null
-                        WHERE game_id = $1
-                        AND pile_order = $2`                           
 
 const UPDATE_PLAYERS = `UPDATE Players
                         SET say_uno = $1,
@@ -66,6 +71,10 @@ module.exports = {
   newGameCards: (game_id, card_id, user_id, pile_order) => db.none(NEW_GAME_CARDS
               , [game_id, card_id, user_id, pile_order]),
 
+  newUser: (avatar_id, password, email, user_name) => db.none(NEW_USER, [avatar_id, password, email, user_name]),
+
+  playNumberCard: (game_id, card_id) => db.none(PLAY_NUMBER_CARD, [game_id, card_id]),
+
   setPileOrderNull: (game_id, pile_order) => db.none(SET_PILE_ORDER_NULL, [game_id, pile_order]),
 
   setReady: (ready, game_id, user_id) => db.none(SET_READY, [ready, game_id, user_id]),
@@ -74,8 +83,6 @@ module.exports = {
 
   updateGame: (seat_turn, direction, next_order, top_discard, game_state, id) => db.none(UPDATE_GAME
             , [seat_turn, direction, next_order, top_discard, game_state, id]),
-
-  playNumberCard: (game_id, card_id) => db.none(PLAY_NUMBER_CARD, [game_id, card_id]),
 
   updatePlayers: (say_uno, announce_suit, score, game_id, user_id) => db.none(UPDATE_PLAYERS
                , [say_uno, announce_suit, score, game_id, user_id])                                    

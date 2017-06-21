@@ -16,23 +16,26 @@ const CARDS_IN_PLAYERS = `SELECT user_id, COUNT(user_id) AS cardCount
                           FROM Game_Cards
                           WHERE game_id = $1
                           AND user_id IS NOT NULL
-                          GROUP BY user_id`                       
+                          GROUP BY user_id`
+
+const EXIST_EMAIL_ID =  `SELECT id, email
+                      FROM Users
+                      WHERE email = $1`                       
 
 const GET_PILE_CARDID = `SELECT card_id
                          FROM Game_Cards
                          WHERE game_id = $1
                          AND pile_order = $2`
 
-const LOGIN = `SELECT Users.id, Users.nick_name, Avatars.image_url
+const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_url
                FROM Users, Avatars
                WHERE Users.avatar_id = Avatars.id
-               AND email = $1
-               AND encrypted_password = $2`
+               AND email = $1`
 
 const GAME_CARDS = `SELECT * FROM Game_Cards
                     WHERE game_id = $1` 
 
-const PLAYERS_THIS_GROUP = `SELECT U.id, U.nick_name, U.user_score, P.score
+const PLAYERS_THIS_GROUP = `SELECT U.id, U.user_name, U.user_score, P.score
                                 , P.seat_number, P.announce_suit, A.image_url
                           FROM Players AS P, Users AS U, Games AS G, Avatars AS A
                           WHERE U.id =  P.user_id
@@ -61,6 +64,7 @@ module.exports = {
   cards: () => db.any(CARDS),
   cardIds: () => db.any(CARD_IDS),
 
+  existEmailId: (email) => db.oneOrNone(EXIST_EMAIL_ID, email),
   gameCards: (game_id) => db.any(GAME_CARDS, game_id),
   getPileCardId: (game_id, pile_order) => db.oneOrNone(GET_PILE_CARDID, [game_id, pile_order]),
   thisGamePlayers: (game_id) => db.any(THISGAME_PLAYERS, game_id),
@@ -68,7 +72,7 @@ module.exports = {
   thisGame: (game_id) => db.any(THIS_GAME, game_id),
 
   // for send to client(s)
-  login: (email, password) => db.oneOrNone(LOGIN, [email, password]),
+  login: (email) => db.oneOrNone(LOGIN, email),
   cardsInHand: (game_id, user_id) => db.any(CARDS_IN_HAND, [game_id, user_id]),
   playersThisGroup: (game_id) => db.any(PLAYERS_THIS_GROUP, game_id),
   cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id)
