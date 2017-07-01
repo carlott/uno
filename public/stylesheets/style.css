@@ -95,14 +95,19 @@ code {
 }
 
 /* chat room for lobby and game */
-.chatroom {
-  height: 100%;
-  width: 100%;
-}
-.panel-body {
+.btn-join-game {margin-top: -7px; margin-right: -10px;}
+.list-group-panel { overflow-y: auto}
+.chatroom > .panel {
   height: 100%;
   overflow-y: auto;
 }
+.chat-list { list-style-type: none; margin: 0; padding: 0; }
+.chat-list li { padding: 5px 10px; }
+.chat-list .odd-list { background: #DAF7A6; } 
+.chat-list { margin-bottom: 0px; }
+.chat-list .odd-list span { margin-left: 30px; }
+.post-time { float: right; }
+.odd-list { background: #ffdab9; }
 
 /* powertip */
 .image_tooltip div {
@@ -115,12 +120,7 @@ code {
 }
 
 /* home page image */
-#play-uno {
-  margin: auto;
-  max-width: 80%;
-}
+#play-uno { margin: auto; max-width: 80%; }
 
 /* warning from server */
-.warning {
-  color: red;
-}
+.warning { color: red; }

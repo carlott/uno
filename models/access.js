@@ -1,6 +1,7 @@
 const db = require('../db/db')
 
-const AVATARS = `SELECT * FROM Avatars`
+const AVATARS = `SELECT * FROM Avatars
+                 ORDER BY id`
 
 const CARDS = `SELECT * FROM Cards ORDER BY id`
 
@@ -20,12 +21,33 @@ const CARDS_IN_PLAYERS = `SELECT user_id, COUNT(user_id) AS cardCount
 
 const EXIST_EMAIL_ID =  `SELECT id, email
                       FROM Users
-                      WHERE email = $1`                       
+                      WHERE email = $1`
+
+const GET_GAMES = `SELECT P.game_id, A.image_url, U.user_name, G.joinable
+                   FROM Avatars A, Games G, Players P, Users U
+                   WHERE A.id = U.avatar_id
+                   AND U.id = P.user_id
+                   AND P.game_id = G.id
+                   ORDER BY P.game_id`
+
+const GET_MESSAGES = `SELECT *
+                      FROM Messages
+                      WHERE game_id = $1
+                      ORDER BY post_time`
+
+const GET_NAME_IMAGE = `SELECT A.image_url, U.user_name
+                        FROM Users U, Avatars A
+                        WHERE U.avatar_id = A.id
+                        AND U.id = $1`                         
 
 const GET_PILE_CARDID = `SELECT card_id
                          FROM Game_Cards
                          WHERE game_id = $1
                          AND pile_order = $2`
+
+const GET_SEAT_COUNT = `SELECT seat_count
+                        FROM Games
+                        WHERE id = $1`
 
 const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_url
                FROM Users, Avatars
@@ -72,8 +94,12 @@ module.exports = {
   thisGame: (game_id) => db.any(THIS_GAME, game_id),
 
   // for send to client(s)
-  login: (email) => db.oneOrNone(LOGIN, email),
   cardsInHand: (game_id, user_id) => db.any(CARDS_IN_HAND, [game_id, user_id]),
+  cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id),
+  getGames: () => db.any(GET_GAMES),
+  getMessages: (game_id) => db.any(GET_MESSAGES, game_id),
+  getNameImage: (user_id) => db.oneOrNone(GET_NAME_IMAGE, user_id),
+  getSeatCount: (game_id) => db.oneOrNone(GET_SEAT_COUNT, game_id),
+  login: (email) => db.oneOrNone(LOGIN, email),
   playersThisGroup: (game_id) => db.any(PLAYERS_THIS_GROUP, game_id),
-  cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id)
 }

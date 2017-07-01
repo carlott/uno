@@ -1,12 +1,118 @@
 <div class="center">
-  <button type="submit" class="btn btn-lg btn-block btn-warning">Create a Game Room</button>
+  <button class="btn btn-lg btn-block btn-warning create-game">Create a Game Room</button>
 </div>
-{{#if groups}}
-<h3>Or Join an Available Room</h3>
 
-<ul class="list-group">
-  {{#each groups}}
-    <li class="list-group-item">New <span class="badge">12</span></li>
-  {{/each}}
-</ul>
+{{#if games}}
+  <h3>Or Join an Available Room</h3>
+  <div class="panel panel-default list-group-panel">
+    <div class="panel-body list-game">
+      <ul class="list-group">
+        {{!-- list games here --}}
+      </ul>
+    </div>
+  </div>
 {{/if}}
+
+
+<script>
+  var oddGameList = false
+
+  $(function() {
+    const socket = io()
+    const games = {{{games}}}
+    
+    if(games.length > 0) listGameRooms(games)
+
+    $('.list-group-panel').height($(window).height() - 280)
+
+    $('.create-game').click(() => {
+      if(checkStatus()) {
+        $.post('/create-game', (response) => {
+          if(response.success) {
+            alert("A game room created!\nYou will enter the room now.")
+            window.location.href = '/game'
+          } else {
+            alert("Unable create a game room!\nPlease try again later.")
+          }
+        })
+      }
+    })
+
+//    $('.btn-join-game').click(function() {
+    $('.list-group').on('click', '.btn-join-game', function() {
+      if(checkStatus()) {
+        $.post('/join-game', {gameId: $(this).val()}, (response) => {
+          if(response.success) {
+            alert("You have joined the game now.")
+            window.location.href = '/game'
+          } else {
+            alert("Unable to join the game!\nPlease try again later.")
+          }
+        })
+      }
+    })
+
+    socket.on('lobby-list', (msg) => {
+      console.log('msg received ', msg)
+      if(msg.hasOwnProperty('createGame')) {
+        $('.list-group').append(newGameRoom([msg]))
+      }
+      else $('#Game-' + msg.game_id).append(addPlayer(msg))
+    })
+
+  })
+
+  function addPlayer(msg) {
+    return `, <img  class="user-image" src="/images/avatars/${msg.image_url}" />
+        <b>${msg.user_name}</b> `
+  }
+
+  function checkStatus() {
+      if({{{userInfo}}}.userId === null) {
+        alert('Log in required.')
+        $('#loginModal').modal('show')
+      } else if ({{{userInfo}}}.userGameId !== null) {
+        alert('You are already in a game room.')
+      } else {
+        return true
+      }
+  }
+
+  function listGameRooms(rooms) {
+    var gameId = rooms[0].game_id
+    var members = []
+    var arrayLength = rooms.length
+    for (var i = 0; i < arrayLength; i++) {
+      if(gameId === rooms[i].game_id) {
+        members.push(rooms[i])
+      } else {
+        $('.list-group').append(newGameRoom(members))
+        gameId = rooms[i].game_id
+        members = [rooms[i]]
+      }
+
+      if(i === arrayLength - 1)
+        $('.list-group').append(newGameRoom(members))
+    }
+  }
+
+  function newGameRoom(msg) {
+    var gameId = msg[0].game_id
+    var addOddList = oddGameList ? ' odd-list' : ''
+    var thisGame = `<li class="list-group-item${addOddList}">
+        <span id="Game-${gameId}" >
+          Game-${gameId}: `
+    for(var i=0; i<msg.length; i++) {
+      thisGame += i > 0 ? ', ' : ''
+      thisGame += `<img  class="user-image" src="/images/avatars/${msg[i].image_url}" />
+        <b>${msg[i].user_name}</b> `
+    }
+    thisGame += `</span>
+      <button value="${gameId}" type="button" class="btn btn-success pull-right btn-join-game">Join</button>
+    </li>`
+
+    oddGameList = oddGameList ? false : true
+    return thisGame
+  }
+
+</script>

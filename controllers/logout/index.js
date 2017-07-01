@@ -6,6 +6,7 @@ const logout = (req, res) => {
       req.session.userId = null
       req.session.userName = null
       req.session.userImage = null
+      req.session.userGameId = null
       res.redirect('/')
     }
   })

@@ -12,8 +12,8 @@
       <ul class="nav navbar-nav">
         <li><a href="/">Home</a></li>
         <li><a href="/lobby">Lobby</a></li>
-        {{#if gameId}}
-          <li><a href="/game">Game</a></li>
+        {{#if userGameId}}
+          <li><a href="/game">Game-{{userGameId}}</a></li>
         {{/if}}
         <li><a href="/about">About</a></li>
       </ul>
@@ -33,6 +33,9 @@
 </nav>
 
 <script>
+  if ($('.modal').width() > $(window).width())
+    $('.modal').width($(window).width() * 0.8)
+
   $('.logOutButton').click(e => {
     if(!confirm('Are you going to log out?'))
       e.preventDefault()

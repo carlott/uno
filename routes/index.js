@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const createGame = require('../controllers/create-game')
+const game = require('../controllers/game')
 const guest = require('../controllers/guest')
 const home = require('../controllers/home')
 const joinGame = require('../controllers/join-game')
@@ -24,9 +25,7 @@ router.get('/about', (req, res) => {
 router.post('/create-game', createGame)
 
 /* GET game page. */
- router.get('/game', (req, res) => {
-   res.render('game', Object.assign({title: 'About'}, userState(req)))
-})
+ router.get('/game', game)
 
 /* POST guest */
 router.post('/guest', guest)

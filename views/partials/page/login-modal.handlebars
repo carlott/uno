@@ -36,6 +36,9 @@
                       <input type="password" class="form-control" required
                           id="loginPassword" placeholder="Password" onkeypress="return noEnter()"/>
                   </div>
+                  <button type="button" class="btn btn-success" id="noAccount">
+                    Don't Have An Account? Sign Up
+                  </button>
                   <button type="reset" class="btn btn-default">Reset</button>
                   <button class="btn btn-default cancel-login" formnovalidate>Cancel</button>
                   <button class="btn btn-primary" type="submit"
@@ -67,6 +70,11 @@
                 }
               })
     })
+  })
+
+  $('#noAccount').click(() => {
+      $('#loginModal').modal('hide')
+      $('#signUpModal').modal('show')
   })
 
   $('.cancel-login').click((e) => {

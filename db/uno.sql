@@ -36,9 +36,9 @@ DROP TABLE IF EXISTS Games CASCADE;
 
 CREATE TABLE IF NOT EXISTS Games (
   id SERIAL PRIMARY KEY,
-  seat_count SMALLINT DEFAULT 0,
-  seat_turn SMALLINT,
-  direction SMALLINT,
+  seat_count SMALLINT,
+  seat_turn SMALLINT DEFAULT 0,
+  direction SMALLINT DEFAULT 1,
   next_order SMALLINT,
   top_discard INTEGER REFERENCES Cards(id),
   joinable BOOLEAN DEFAULT TRUE,
@@ -48,10 +48,10 @@ CREATE TABLE IF NOT EXISTS Games (
 DROP TABLE IF EXISTS Messages CASCADE;
 
 CREATE TABLE IF NOT EXISTS Messages (
-  id SERIAL PRIMARY KEY,
-  game_id INTEGER REFERENCES Games(id) ON DELETE CASCADE,
-  user_id INTEGER REFERENCES Users(id),
-  post_time TIME WITH TIME ZONE,
+  game_id INTEGER,
+  user_name VARCHAR(32),
+  image_full_url VARCHAR(64),
+  post_time TIMESTAMP WITH TIME ZONE,
   message VARCHAR(256)
 );
 

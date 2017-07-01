@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('uno:server');
 var http = require('http');
-const Socket = require('../controllers/socket-server');
+const Socket = require('../controllers/socket-server').server;
 
 /**
  * Get port from environment and store in Express.

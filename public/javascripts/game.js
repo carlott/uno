@@ -27,11 +27,6 @@ socket.on('game', function(msg) {
 /* Check timeout */
 /* Event response */
 // *
-var chat=`{{#each messages}}
-		<li>{{this.nick_name}}: {{this.message}}   {{this.post_time}}</li>
-		{{/each}}`;
-
-var chat_template=Handlebars.compile(chat);
 
 $(function () {
   init()

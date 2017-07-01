@@ -1,20 +1,24 @@
 const socketIo = require('socket.io')
-const eventHandler = require('../game').eventHandler
+const chatLog = require('../chat-log')
+const eventHandler = require('../game/event-handler')
+var io
 
 const socketServer = (app, server) => {
-  const io = socketIo(server)
+  io = socketIo(server)
 
   app.set('io', io)
 
   io.on('connection', socket => {
-      console.log('game client connected')
+      console.log('a socket client connected')
 
       socket.on('disconnect', data => {
-          console.log('game client disconnected')
+          console.log('a socket client disconnected')
       })
 
-      socket.on('chat message', function(msg) {
-        socket.emit('chat message', msg)
+      socket.on('chat', function(msg) {
+        console.log('server received ', msg)
+        io.emit(msg.toChatRoom, msg)
+        chatLog(msg)
       })
 
       socket.on('game', function(msg) {
@@ -28,4 +32,13 @@ console.log('server received ', JSON.stringify(msg))
 
 }
 
-module.exports = socketServer
+function boardcastTo (channel, msg) {
+//    io.on('connection', socket => {
+    io.emit(channel, msg)
+//    })
+}
+
+
+
+module.exports = { server: socketServer,
+                   boardcastTo: boardcastTo }

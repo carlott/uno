@@ -1,9 +1,19 @@
 const db = require('../db/db')
 
+const ADD_ONE_SEAT = `UPDATE Games
+                      SET seat_count = seat_count + 1
+                      WHERE id = $1`
+
 const ADD_PILE_ORDER = `UPDATE Game_Cards
                         SET pile_order = null
                         WHERE game_id = $1
-                        AND pile_order = $2`                           
+                        AND pile_order = $2`
+
+const CREATE_GAME = `INSERT INTO Games
+                       (seat_count)
+                     VALUES
+                       (1)
+                     RETURNING id`                        
 
 const DELETE_OLD_GAME_CARDS = `DELETE FROM Game_Cards
                                WHERE game_id = $1`
@@ -17,6 +27,16 @@ const NEW_GAME_CARDS =  `INSERT INTO Game_Cards
                           (game_id, card_id, user_id, pile_order)
                         VALUES
                           ($1,$2,$3,$4)`
+                        
+const NEW_MESSAGE = `INSERT INTO Messages
+                       (game_id, user_name, image_full_url, post_time, message)
+                     VALUES
+                       ($1,$2,$3,$4,$5)`
+
+const NEW_PLAYER = `INSERT INTO Players
+                      (game_id, user_id, seat_number)
+                    VALUES
+                      ($1,$2,$3)`
 
 const NEW_USER = `INSERT INTO Users
                    (avatar_id, password, email, user_name)
@@ -61,15 +81,24 @@ const UPDATE_PLAYERS = `UPDATE Players
                         AND user_id = $5`                                                                                                                                                          
 
 module.exports = {
+  addOneSeat: (game_id) => db.none(ADD_ONE_SEAT, game_id),
+
   addPileOrder: (game_id, pile_order) => db.none(ADD_PILE_ORDER, [game_id, pile_order]),
 
   dealtGameCards: (user_id, game_id, pile_order) => db.none(DEALT_GAME_CARDS
-                , [user_id, game_id, pile_order]),
+                   , [user_id, game_id, pile_order]),
 
   deleteOldGameCards: (game_id) => db.none(DELETE_OLD_GAME_CARDS, game_id),
 
+  createGame: () => db.any(CREATE_GAME),
+
   newGameCards: (game_id, card_id, user_id, pile_order) => db.none(NEW_GAME_CARDS
-              , [game_id, card_id, user_id, pile_order]),
+                 , [game_id, card_id, user_id, pile_order]),
+
+  newMessage: (game_id, user_name, image_full_url, post_time, message) => db.none(NEW_MESSAGE
+               , [game_id, user_name, image_full_url, post_time, message]),
+
+  newPlayer: (game_id, user_id, seat_number) => db.none(NEW_PLAYER, [game_id, user_id, seat_number]),
 
   newUser: (avatar_id, password, email, user_name) => db.none(NEW_USER, [avatar_id, password, email, user_name]),
 
@@ -82,8 +111,8 @@ module.exports = {
   startGame: (next_order, top_discard, id) => db.none(START_GAME, [next_order, top_discard, id]),
 
   updateGame: (seat_turn, direction, next_order, top_discard, game_state, id) => db.none(UPDATE_GAME
-            , [seat_turn, direction, next_order, top_discard, game_state, id]),
+               , [seat_turn, direction, next_order, top_discard, game_state, id]),
 
   updatePlayers: (say_uno, announce_suit, score, game_id, user_id) => db.none(UPDATE_PLAYERS
-               , [say_uno, announce_suit, score, game_id, user_id])                                    
+                  , [say_uno, announce_suit, score, game_id, user_id])                                    
 }

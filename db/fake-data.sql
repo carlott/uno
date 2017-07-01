@@ -49,9 +49,9 @@ CREATE TABLE IF NOT EXISTS Games (
 DROP TABLE IF EXISTS Messages CASCADE;
 
 CREATE TABLE IF NOT EXISTS Messages (
-  id SERIAL PRIMARY KEY,
-  game_id INTEGER REFERENCES Games(id) ON DELETE CASCADE,
-  user_id INTEGER REFERENCES Users(id),
+  game_id INTEGER,
+  user_name VARCHAR(32),
+  image_full_url VARCHAR(64),
   post_time TIME WITH TIME ZONE,
   message VARCHAR(256)
 );
