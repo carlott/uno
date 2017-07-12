@@ -57,19 +57,19 @@ const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_u
 const GAME_CARDS = `SELECT * FROM Game_Cards
                     WHERE game_id = $1` 
 
-const PLAYERS_THIS_GROUP = `SELECT U.id, U.user_name, U.user_score, P.score
-                                , P.seat_number, P.announce_suit, A.image_url
-                          FROM Players AS P, Users AS U, Games AS G, Avatars AS A
-                          WHERE U.id =  P.user_id
-                          AND U.avatar_id = A.id
-                          AND P.game_id = G.id
-                          AND G.id = $1
-                          ORDER BY P.seat_number`
+const PLAYERS_THIS_GROUP = `SELECT U.id, U.user_name, U.user_score, P.*, A.image_url
+                            FROM Players AS P, Users AS U, Games AS G, Avatars AS A
+                            WHERE U.id =  P.user_id
+                            AND U.avatar_id = A.id
+                            AND P.game_id = G.id
+                            AND G.id = $1
+                            ORDER BY P.seat_number`
 
 
-const THISGAME_PLAYERS = `SELECT * FROM Players
-                 WHERE game_id = $1
-                 ORDER BY seat_number`
+const THISGAME_PLAYERS = `SELECT *
+                          FROM Players
+                          WHERE game_id = $1
+                          ORDER BY seat_number`
 
 const THIS_PLAYER = `SELECT * FROM Players
                      WHERE game_id = $1

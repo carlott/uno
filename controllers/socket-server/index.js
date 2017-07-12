@@ -16,7 +16,6 @@ const socketServer = (app, server) => {
       })
 
       socket.on('chat', function(msg) {
-        console.log('server received ', msg)
         io.emit(msg.toChatRoom, msg)
         chatLog(msg)
       })
@@ -25,20 +24,19 @@ const socketServer = (app, server) => {
 console.log('server received ', JSON.stringify(msg))
         eventHandler(msg, function(toPlayer, toGroup) {
           socket.emit('game', toPlayer)
-          io.emit('game', toGroup)
+          boardcast(`g-${toGroup.group}`, toGroup)
+          // io.emit(`g-${toGroup.group}`, toGroup)
         })
       })
   })  // end of io.on
 
 }
 
-function boardcastTo (channel, msg) {
-//    io.on('connection', socket => {
-    io.emit(channel, msg)
-//    })
+function boardcast (channel, msg) {
+  io.emit(channel, msg)
 }
 
 
 
 module.exports = { server: socketServer,
-                   boardcastTo: boardcastTo }
+                   boardcastTo: boardcast }

@@ -37,6 +37,8 @@ a {
   float: none;
   margin-left: auto;
   margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 /* Sticky footer styles
@@ -53,7 +55,6 @@ html {
   height: 40px;
   background-color: #d3d3d3;
 }
-
 
 /* Custom page CSS
 -------------------------------------------------- */
@@ -78,20 +79,80 @@ code {
 }
 
 /* game board */
-.gameroom {
-  height: 100%;
-  background-color: #89EAB3;
+.game-row-4 .card-pile {
+  max-height: 160px;
+  margin-top: -80px;
 }
-.gameroom > .row {
-  box-sizing: border-box;
-  border: 1px solid red;
+.discard-pile {
+  height: 220px;
+  margin-top: -100px;
+  z-index: 10;
+}
+.gameroom .card {
+  height: 100px;
+}
+.gameroom {
+  background: url("/images/splash/unoBG150.jpg")  no-repeat center center;
+  background-size: cover;
+  /*background-color: #576375;*/
+}
+.game-row-1, .game-row-4 {
   height: 15%;
 }
-.gameroom .card-pile {
-  height: 35%;
+.game-row-2 {
+  height: 20%;
+}
+.game-row-3 {
+  height: 25%;
+}
+.game-row-5, .game-row-5-1 {
+  height: 25%;
+}
+.game-row-5-2 {
+  margin-top: 50px;
 }
 .left-arrow, .right-arrow {
   min-height: 40px;
+  max-height: 100px;
+  margin-top: -40px;
+}
+.players-image {
+  max-height: 60px;
+  margin-top: 15px;
+}
+.show-flag {
+  z-index: -10;
+  max-height: 40px;
+}
+.show-suit {
+  margin-top: 20px;
+}
+.show-tmp-card {
+  position: absolute;
+  height: 150px;
+}
+.suits {
+  height: 280px;
+}
+.my-image {
+  max-height: 90px;
+}
+.gameroom .game-button {
+  width: 100%;
+  height: 80px;
+  margin-top: 100px;
+}
+#ready-button {
+  float: none;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.exit-button {
+  margin-top: 100px;
+}
+.user-name {
+  color: #999;
 }
 
 /* chat room for lobby and game */

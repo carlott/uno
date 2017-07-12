@@ -1,7 +1,5 @@
 const access = require('../../models/access.js')
 const ready = require('./ready')
-const start = require('./start')
-const initClient = require('./init-client')
 const pass = require('./pass')
 const pickedColor = require('./picked-color')
 const uno = require('./uno')
@@ -11,13 +9,10 @@ const refreshClient = require('./refreshClient')
 
 /*
  * Content of object from client:
- * msg: { word:<action>, game_state:integer, game_id:integer, user_id:integer }
- * Content of objects send to client:
- * toPlayer: { order:string, user_id:integer, game_state:integer, handCards:array }
- * toGroup: { group:<game_id>, refresh:string game_state:integer, players:array, game:array }
+ * msg: { word:<action>, game_id:integer, user_id:integer }
  */
-const TO_PLAYER = { order:{}, user_id:{}, game_state:{}, handCards:{} }
-const TO_GROUP = { group:{}, refresh:{}, game_state:{}, players:{}, game:{}, cardsInPlayers:{} }
+const TO_PLAYER = { user_id:{}, order:{}, handCards:{} }
+const TO_GROUP = { group:{}, order:{}, players:{}, game:{} }
 
 const eventHandler = (msg, callback) => {
   var toPlayer = Object.assign({}, TO_PLAYER)
@@ -30,16 +25,14 @@ const eventHandler = (msg, callback) => {
     // read data from the updated tables and assemble send out packages
     promises = [access.cardsInHand(msg.game_id, msg.user_id)
                 , access.thisGame(msg.game_id)
-                , access.playersThisGroup(msg.game_id)
-                , access.cardsInPlayers(msg.game_id)]
+                , access.playersThisGroup(msg.game_id)]
     return Promise.all(promises)
   })
   .then(values => {
     toPlayer.handCards = values[0]
     toGroup.game = values[1]
     toGroup.players = values[2]
-	console.log(toGroup.players);
-    toGroup.cardsInPlayers = values[3]
+//	console.log(toGroup.players);
     packOutPackage(msg, toPlayer, toGroup)
     return delay(50)
   .then(() => {
@@ -54,6 +47,7 @@ const eventHandler = (msg, callback) => {
 function handleEvent(msg, toPlayer, toGroup) {
   const word = msg.word
   var promise;
+  var result = 'empty'
   console.log(word)
   if (typeof word === 'number' || word === 'draw') {
     promise = playCards(msg)
@@ -72,20 +66,8 @@ function handleEvent(msg, toPlayer, toGroup) {
       result = 'get pass'
       break
     case 'ready':
-      ready(msg).then( result => {  // if ready, then start game
-      if (result) {
-		result="start game";
-        toGroup.refresh = 'refresh'
-        promise = start(msg)
-      } else {
-        result = 'not ready to start';
-      }
-
-      toGroup.refresh = 'refresh'
-	  });
-	  
-       //               start(msg) // for test with out players are really ready
-
+      promise = ready(msg)
+      result = 'get ready'
       break
     case 'red':
     case 'green':
@@ -98,10 +80,6 @@ function handleEvent(msg, toPlayer, toGroup) {
       uno(msg)
       result = 'get uno'
       break
-    case 'init':
-      result = 'get init'
-      initClient(toPlayer)
-      break
     case 'exit':
       result = 'get exit'
       exit(msg)
@@ -109,29 +87,22 @@ function handleEvent(msg, toPlayer, toGroup) {
     default:
       result = 'no matched word'
   }
-  //console.log('result: ', result)
+  console.log('result: ', result)
   return promise || new Promise((resolve) => {resolve()});
 }
 
-const wordMapOrder = word => {
+const orderToUser = word => {
+  if (typeof word === 'number') word = 'refresh'
   switch (word) {
+    case 'ready':
     case 'refresh':
       result = 'redraw'
       break
     case 'draw':
       result = 'settle'
       break
-    case 'ready':
-      result = 'refresh'
-      break;
-    case 'init':
-      result = 'init'
-      break;
     case 'exit':
       result = 'exit'
-      break
-    case 'send_chat':
-      result = 'uppate_chat'
       break
     default:
       result = 'none'
@@ -139,7 +110,7 @@ const wordMapOrder = word => {
   return result
 }
 
-function setRefreshFlag(word) {
+function orderToGroup(word) {
   var result
   switch (word) {
     case 'ready':
@@ -169,13 +140,9 @@ function packOutPackage(msg, toPlayer, toGroup) {
   	toGroup.winner=msg.user_id;
   }
   toPlayer.user_id = msg.user_id
-  toPlayer.order = wordMapOrder(msg.word)
-  toGroup.refresh = setRefreshFlag(msg.word)
+  toPlayer.order = orderToUser(msg.word)
+  toGroup.order = orderToGroup(msg.word)
   toGroup.group = msg.game_id
-  if (toGroup.game.length > 0) {
-    toGroup.game_state = toGroup.game[0].game_state
-    toPlayer.game_state = toGroup.game[0].game_state
-  }
 }
 
 function delay(t) {

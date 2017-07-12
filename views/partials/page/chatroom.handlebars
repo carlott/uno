@@ -20,13 +20,11 @@
   </div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
-
 <script>
   var oddList = false   // for list messages' style 
+  const socket = io()
 
   $(function() {
-    const socket = io()
     const userInfo = {{{userInfo}}};
     const pastMessages = {{{messages}}};
     const chatRoomId = {{{chatRoomId}}}.id 
@@ -84,19 +82,15 @@
 
   function showTime(time) {
     /* stored time and show time not acurreate, need correct */
-    console.log('\ntime stamp ', time)
     var currentDay = new Date()   // get local date
     var past = new Date(time)
     var localOffset = past.getTimezoneOffset() // minutes
-    console.log('new time stamp ', past)
     var timeOnly = '' + ('0'+past.getHours()).substr(-2) + ':' + ('0'+past.getMinutes()).substr(-2) + ':' + ('0'+past.getSeconds()).substr(-2)
     if (currentDay.getFullYear() === past.getFullYear() && currentDay.getMonth()
          === past.getMonth() && currentDay.getDate() === past.getDate()) 
-    {{!--if (currentDay/1000 - (past + localOffset*60) < 24*60*60)--}}
       var thisTime = timeOnly
     else var thisTime = '' + ('0'+(past.getMonth()+1)).substr(-2) + '\/' + ('0'+past.getDate()).substr(-2) + '\/' + past.getFullYear()
       + ' ' + timeOnly
-      console.log('return time ', thisTime)
     return thisTime
   }
 

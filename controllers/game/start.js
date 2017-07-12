@@ -1,5 +1,6 @@
 const access = require('../../models/access')
 const update = require('../../models/update')
+const boardcastTo = require('../socket-server').boardcastTo
 
 const DEALT_CARDS = 7
 
@@ -51,6 +52,7 @@ const start = (msg) => {
     return update.startGame(++topOrder, result.card_id, msg.game_id)
   })
   .then( result => {
+    boardcastTo('lobby-list', {gameStarted: true})
     return update.dealtGameCards(null, msg.game_id, --topOrder)
   })
   .catch( e => {

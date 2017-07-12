@@ -48,7 +48,8 @@ app.use(session({
   },
   secret: 'super problem solver',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  expire: 2*3600
 }))
 
 app.use('/', index);

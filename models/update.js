@@ -62,6 +62,7 @@ const START_GAME = `UPDATE Games
                     SET next_order = $1,
                         top_discard = $2,
                         direction = 1,
+                        game_state = 1,
                         joinable = false
                     WHERE id = $3`
 

@@ -3,7 +3,7 @@
 </div>
 
 {{#if games}}
-  <h3>Or Join an Available Room</h3>
+  <h3>Or Join an Available Game Room</h3>
   <div class="panel panel-default list-group-panel">
     <div class="panel-body list-game">
       <ul class="list-group">
@@ -18,7 +18,6 @@
   var oddGameList = false
 
   $(function() {
-    const socket = io()
     const games = {{{games}}}
     
     if(games.length > 0) listGameRooms(games)
@@ -56,8 +55,16 @@
       console.log('msg received ', msg)
       if(msg.hasOwnProperty('createGame')) {
         $('.list-group').append(newGameRoom([msg]))
+      } else if(msg.hasOwnProperty('gameStarted')) {
+        $(`#game-${msg.game_id}-button`).hide()
       }
-      else $('#Game-' + msg.game_id).append(addPlayer(msg))
+      else {
+        $('#Game-' + msg.game_id).append(addPlayer(msg))
+        if(msg.joinable === false) {
+          $(`#game-${msg.game_id}-button`).hide()
+          $(`#game-${msg.game_id}-ban`).addClass('glyphicon glyphicon-ban-circle')
+        }
+      }
     })
 
   })
@@ -93,6 +100,10 @@
 
       if(i === arrayLength - 1)
         $('.list-group').append(newGameRoom(members))
+
+      if(!rooms[i].joinable)
+        $(`#game-${rooms[i].game_id}-button`).hide()
+        $(`#game-${rooms[i].game_id}-ban`).addClass('glyphicon glyphicon-ban-circle')
     }
   }
 
@@ -108,7 +119,8 @@
         <b>${msg[i].user_name}</b> `
     }
     thisGame += `</span>
-      <button value="${gameId}" type="button" class="btn btn-success pull-right btn-join-game">Join</button>
+      <button id="game-${gameId}-button" value="${gameId}" type="button" class="btn btn-success pull-right btn-join-game">Join</button>
+      <span id="game-${gameId}-ban" class="pull-right"></span>
     </li>`
 
     oddGameList = oddGameList ? false : true

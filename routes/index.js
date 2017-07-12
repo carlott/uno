@@ -25,7 +25,7 @@ router.get('/about', (req, res) => {
 router.post('/create-game', createGame)
 
 /* GET game page. */
- router.get('/game', game)
+router.get('/game', game)
 
 /* POST guest */
 router.post('/guest', guest)

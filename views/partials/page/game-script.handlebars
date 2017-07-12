@@ -1,0 +1,219 @@
+<script>
+
+var toServer, cards, gameState, seatList, thisUser, thisGroup, oldCards
+const READY_FLAG = '/images/splash/ready.png'
+const INHANDS = '/images/splash/inhands.png'
+const SAY_UNO = '/images/splash/say-uno.png'
+const AVATAR_PATH = '/images/avatars/'
+const CARDS_PATH = '/images/cards/'
+const FOCUS_LIGHT = '/images/splash/focus.png'
+const SUIT_SIGN = { r: '/images/splash/red-suit.png', y: '/images/splash/yellow-suit.png'
+                    , b: '/images/splash/blue-suit.png', g: '/images/splash/green-suit.png' }
+const SEAT_IDs = ['seat-0', 'seat-4', 'seat-5', 'seat-2', 'seat-7', 'seat-1'
+                 , 'seat-6', 'seat-3', 'seat-8']
+
+$(function () {
+  /* variables for javascript from handlbars */
+  cards = {{{JSON_CARDS}}}
+  const userId = {{{userInfo}}}.userId
+  const gameId = {{{userInfo}}}.userGameId
+  const userSeat = {{{userInfo}}}.userSeat
+  const GAME_ROOM = `g-${gameId}`
+  toServer = { word: {}, game_id: gameId, user_id: userId, game_state: 0 };
+  gameState = typeof gameState === 'undefined' ? 0 : gameState
+
+  $('.gameroom').height($(window).height() - 130)
+  send('refresh')
+
+  /* player action event */
+  $('#ready-button').click(() => {
+    send('ready')
+  })
+  $('.uno-button').click(() => {
+    if (userSeat === thisGroup.game[0].seat_turn) send('uno')
+  })
+  $('.pass-button').click(() => {
+    if (userSeat === thisGroup.game[0].seat_turn) send('pass')
+  })
+  $('.card-pile').click(() => {
+    if (userSeat === thisGroup.game[0].seat_turn) {
+      oldCards = thisUser.handCards
+      send('draw')
+    }
+  })
+
+  /* socket listening from game server */
+  socket.on('game', function(msg) {
+    if (msg.hasOwnProperty("user_id") && msg.user_id === userId)
+      userHandler(msg)
+console.log('\nfrom server to user: ', JSON.stringify(msg))
+  })
+    
+  socket.on(GAME_ROOM, function(msg) {
+    if (msg.hasOwnProperty("group") && msg.group === gameId) {
+      groupHandler(msg)
+console.log('\nfrom server to group: ', JSON.stringify(msg))
+    }
+  })
+
+
+                 {{!--$('.show-suit').attr('src', "/images/splash/yellow-suit.png")
+        $('#selectSuitModal').modal('show')--}}
+
+})
+
+function userHandler(msg) {
+  thisUser = msg
+  var result = {};
+  var order = msg.order;
+  switch (order) {
+    case 'none':
+      result = 'none';
+      break;
+    case 'pickColor':
+      result = 'pick a color';
+      break;
+    case 'redraw':
+      result = 'redraw'
+      if( cards !== {} ) showHandCards(msg.handCards)
+      break
+    case 'refresh':
+      result = 'refresh';
+      break;
+    case 'exit':
+      result = 'exit';
+      break;
+    case 'settle':
+      result = 'settle'
+      settleCard(msg.handCards)
+    default:
+      result = 'no matched order';
+  }
+
+}
+
+function groupHandler(msg) {
+  thisGroup = msg
+  var order = msg.hasOwnProperty('order') ? msg.order : ''
+  switch (order) {
+    case 'readyPlay':
+      break;
+    case 'refresh':
+      send('refresh')
+      break;
+    default:
+      gameState = msg.game[0].game_state
+      topDiscard(msg)
+      drawArrow(msg)
+      drawPlayers(msg)
+  }
+}
+
+/* respond to play action */
+function send(word) {
+  if (validAction()) {
+    toServer.game_state = gameState
+    toServer.word = word
+    sendOut(toServer);
+  } else {
+    console.log('invalid, no send action')
+  }
+}
+
+function validAction() {
+  return true
+}
+
+function sendOut(outPackage) {
+  socket.emit('game', outPackage)
+}
+
+function settleCard(newCards) {
+  var cardId = newOne(oldCards, newCards)
+  var newCard = '/images/cards/' + cards[cardId].image_url
+  var image = `<img class="drawn-card" src="${newCard}" ondragend="send(${cardId})"
+                  onclick="send(${cardId})" />`
+  $('.show-tmp-card').html(image) 
+}
+
+function newOne(olds, news) {
+  var newCard, isNew
+  news.forEach(element => {
+    newCard = element.card_id
+    console.log('new card id: ', newCard)
+    isNew = true
+    olds.forEach(e => {
+      if(newCard === e.card_id) isNew = false
+    })
+    if (isNew) return newCard
+  })
+  return null
+}
+
+function showHandCards(handCards) {
+  if (handCards.length > 0) {
+    var image = '', oneCard = ''    
+    handCards.forEach(element => {
+      var cardId = element.card_id
+      oneCard = '/images/cards/' + cards[cardId].image_url
+      image += `<img class="card" src="${oneCard}" ondragend="send(${cardId})"
+                  onclick="send(${cardId})" />`
+    })
+    $('.hand-cards').html(image)
+  }
+}
+
+function topDiscard(msg) {
+  if(cards[msg.game[0].top_discard]) {
+    var discard = '/images/cards/' + cards[msg.game[0].top_discard].image_url 
+  }else{
+    var discard = '';
+  }
+
+  $('.discard-pile').attr('src', discard)
+}
+
+function drawArrow(msg) {
+  if (msg.game[0].direction === 1) {
+    $('.left-arrow').attr('src', '/images/splash/leftup.png')
+    $('.right-arrow').attr('src', '/images/splash/rightdown.png')
+  } else if (msg.game[0].direction === -1) {
+    $('.left-arrow').attr('src', '/images/splash/leftdown.png')
+    $('.right-arrow').attr('src', '/images/splash/rightup.png')
+  }
+}
+
+function drawPlayers(msg) {
+  var seatCount = msg.players.length;
+  seatList = SEAT_IDs.slice(0, seatCount)
+  seatList.sort()
+  for (var i = 0; i < seatCount; i++) {
+    drawPlayer(msg.players[i], msg)
+  }
+}
+
+function drawPlayer(player, msg) {
+  var seat = mapSeat(player.seat_number, seatList.length)
+  if (player.seat_number !== {{{userInfo}}}.userSeat) {
+    $(`#${seatList[seat]} .players-image`).attr('src', AVATAR_PATH + player.image_url)
+    $(`#${seatList[seat]} .user-name`).html(player.user_name)
+  } else {
+    if (gameState === 0 && player.ready_play) $('#ready-button').hide()
+  }
+
+  var flag = ''
+  if (gameState === 0 && player.ready_play) flag = READY_FLAG
+  else if (player.say_uno) flag = SAY_UNO
+  else if (player.seat_number === msg.game[0].seat_turn) flag = FOCUS_LIGHT
+  else if (gameState > 0) flag = player.seat_number !== {{{userInfo}}}.userSeat ? INHANDS : ''
+  $(`#${seatList[seat]} .show-flag`).attr('src', flag)
+  if (player.score > 0) $(`#${seatList[seat]} .badge`).html(player.score)
+}
+
+function mapSeat(seatNum, length) {
+  var mainSeat = {{{userInfo}}}.userSeat
+  var number = seatNum < mainSeat ? length - mainSeat + seatNum : seatNum - mainSeat
+  return number
+}
+
+</script>

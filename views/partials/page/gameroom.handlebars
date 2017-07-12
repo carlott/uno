@@ -1,59 +1,119 @@
-<div class="row">
-  <div class="col-xs-5 col-sm-5">
-    <p>row 1 left seat</p>
+<div class="row game-row-1">
+  <div class="col-xs-2 col-sm-2 col-sm-offset-3">
+    <div id="seat-4">
+      {{!--<p>row 1 left seat</p>--}}
+      <img class="img-responsive players-image center-block" src="" />
+      <img class="img-responsive show-flag center-block" src="" />
+      <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+    </div>
   </div>
-  <div class="col-xs-5 col-sm-5 col-sm-offset-2">
-    <p>row 1 right seat</p>
+  <div class="col-xs-2 col-sm-2">
+    <img class="img-responsive center-block show-suit" src="" />
+  </div>
+  <div class="col-xs-2 col-sm-2">
+    <div id="seat-5">
+      {{!--<p>row 1 right seat</p>--}}
+      <img class="img-responsive players-image center-block" src="" />
+      <img class="img-responsive show-flag center-block" src="" />
+      <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+    </div>
   </div>
 </div>
 
-<div class="row">
+<div class="row game-row-2">
+    <div class="col-xs-2 col-sm-2 col-sm-offset-1">
+      <div id="seat-3">
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
+    </div>
+    <div class="col-xs-2 col-sm-2 col-sm-offset-6">
+      <div id="seat-6">
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
+    </div>
+</div>
+
+<div class="row  game-row-3">
+    <div class="col-xs-2 col-sm-2">
+      <div id="seat-2">
+        {{!--<p>row 3 left seat</p>--}}
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
+    </div>
+    <div class="col-xs-2 col-sm-2">
+      <img class="img-responsive left-arrow center-block" src="" alt="left arrow" height="60" />
+    </div>
     <div class="col-xs-4 col-sm-4">
-      <p>row 2 left seat</p>
-    </div>
-    <div class="col-xs-4 col-sm-4 col-sm-offset-4">
-      <p>row 2 right seat</p>
-    </div>
-</div>
-
-<div class="row card-pile">
-    <div class="col-xs-2 col-sm-2">
-      <p>row 3 left seat</p>
-    </div>
-    <div class="col-xs-1 col-sm-1">
-      <img class="img-responsive left-arrow" src="" alt="left arrow" height="60">
-    </div>
-    <div class="col-xs-6 col-sm-6">
-      <img class="img-responsive disc" src="">
-      <img class="img-responsive discard-pile" src="" alt="discard">
-      row 3 for uno button, discard pile, pass button
-    </div>
-    <div class="col-xs-1 col-sm-1">
-      <img class="img-responsive right-arrow" src="" alt="right arrow">
+      <div id="discard-pile">
+        <img class="img-responsive discard-pile center-block" src="" />
+      </div>
     </div>
     <div class="col-xs-2 col-sm-2">
-      <p>row 3 right seat</p>
+      <img class="img-responsive right-arrow center-block" src="" alt="right arrow" />
+      <div class="show-tmp-card"></div>
+    </div>
+    <div class="col-xs-2 col-sm-2">
+      <div id="seat-7">
+        {{!--<p>row 3 right seat</p>--}}
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
     </div>
 </div>
 
-<div class="row card-pile">
-    <div class="col-xs-3 col-sm-3">
-      <p>row 4 player self seat</p>
+<div class="row game-row-4">
+    <div class="col-xs-2 col-sm-2">
+      <div id="seat-1">
+        {{!--<p>row 4 left player seat</p>--}}
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
     </div>
-    <div class="col-xs-6 col-sm-6">
-      <p>row 4 for hand cards</p>
+    <div class="col-xs-2 col-sm-2 col-sm-offset-1">
+      <a href="#"><img class="img-responsive uno-button center-block" src="/images/splash/uno-button.png" /></a>
     </div>
-    <div class="col-xs-3 col-sm-3">
-      row 4 for ready button
+    <div class="col-xs-2 col-sm-2">
+      <a href="#"><img class="img-responsive pass-button center-block" src="/images/splash/pass-button.png" /></a>
+    </div>
+    <div class="col-xs-2 col-sm-3">
+      <a href="#"><img class="img-responsive card-pile center-block" src="/images/splash/card-pile.png" /></a>
+    </div>
+    <div class="col-xs-2 col-sm-2">
+      <div id="seat-8">
+        {{!--row 4 right player seat--}}
+        <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive show-flag center-block" src="" />
+        <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
+      </div>
     </div>
 </div>
 
+<div class="row  game-row-5">
+    <div class="col-xs-2 col-sm-2">
+      <a href="#"><img class="img-responsive center-block exit-button" src="/images/splash/exit.png" /></a>
+    </div>
+    <div class="col-xs-8 col-sm-8 hand-cards">
+      <button id="ready-button" class="btn btn-success btn-lg game-button center-block">I am Ready to Play</button>
+      {{!--row 5 for hand cards--}}
+    </div>
+    <div class="col-xs-2 col-sm-2">
+      <div class="row game-row-5-1">
+      </div>
+      <div id="seat-0" class="row game-row-5-2">
+        <img class="img-responsive my-image center-block" src="/images/avatars/{{userImage}}" />
+        <img class="img-responsive show-flag center-block main-show-flag" src="" />
+        <div style="text-align:center;"><b class="user-name">{{userName}}</b> <span class="badge"></span></div>
+      </div>
+    </div>
+</div>
 
-<script>
-  var jsonCards = {{{JSON_CARDS}}}
-  console.log('cards ', jsonCards[0].image_url)
-  $('.left-arrow').attr('src', '/images/splash/leftup.png')
-    $('.right-arrow').attr('src', '/images/splash/rightdown.png')
-    $('.disc').attr('src', '/images/cards/'+jsonCards[30].image_url)
-    $('.discard-pile').attr('src', '/images/cards/'+{{{JSON_CARDS}}}[4].image_url)
-</script>
+{{> page/select-suit-modal}}
+{{> page/game-script}} 

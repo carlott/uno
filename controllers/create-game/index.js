@@ -5,8 +5,8 @@ const boardcastTo = require('../socket-server').boardcastTo
 const createGame = (req, res) => {
   update.createGame()
   .then(result => {
-    console.log('returned game id: user id: ', result, req.session.userId)
     req.session.userGameId = result[0].id
+    req.session.userSeat = 0
     return update.newPlayer(result[0].id, req.session.userId, 0)
   })
   .then(() => {
@@ -14,7 +14,6 @@ const createGame = (req, res) => {
   })
   .then(data => {
     var addGame = Object.assign({createGame: true, game_id: req.session.userGameId}, data)
-    console.log('add game users ', addGame)
     res.json({success: true})
     boardcastTo('lobby-list', addGame)
   })
