@@ -19,9 +19,18 @@
                 <p>(sign up, log in bottons are at the top-right navigation bar)</p>
                 <h3>Sign up if you are a new player</h3>
                 <h3>Or play as a guest</h3>
-                <a href="#" role="button" data-toggle="modal" data-target="#guestModal" class="btn btn-primary btn-lg btn-block">Play as a Guest</a>
-                {{> page/guest-modal }}
+                <a href="#" role="button" class="btn btn-primary btn-lg btn-block guest-button">Play as a Guest</a>
             {{/if}}
         </div>
     </div>
 </div>
+
+<script>
+$(function () {
+  $('.guest-button').on('click', () => {
+    $('.sign-up-part').hide()
+    $('.guest-sign-up').attr('value', 'yes')
+    $('#signUpModal').modal('show')
+  })
+})
+</script>

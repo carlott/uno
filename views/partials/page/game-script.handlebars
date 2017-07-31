@@ -1,23 +1,23 @@
 <script>
 
-var toServer, cards, gameState, seatList, thisUser, thisGroup, oldCards
+var toServer={}, cards={}, gameState=0, seatList=null, thisUser={}, thisGroup={}
 const READY_FLAG = '/images/splash/ready.png'
 const INHANDS = '/images/splash/inhands.png'
 const SAY_UNO = '/images/splash/say-uno.png'
 const AVATAR_PATH = '/images/avatars/'
 const CARDS_PATH = '/images/cards/'
 const FOCUS_LIGHT = '/images/splash/focus.png'
-const SUIT_SIGN = { r: '/images/splash/red-suit.png', y: '/images/splash/yellow-suit.png'
-                    , b: '/images/splash/blue-suit.png', g: '/images/splash/green-suit.png' }
+const SUIT_SIGN = {'r': '/images/splash/red-suit.png', 'y': '/images/splash/yellow-suit.png', 'b': '/images/splash/blue-suit.png', 'g': '/images/splash/green-suit.png'}
 const SEAT_IDs = ['seat-0', 'seat-4', 'seat-5', 'seat-2', 'seat-7', 'seat-1'
                  , 'seat-6', 'seat-3', 'seat-8']
+var winInfo = {}              
 
 $(function () {
   /* variables for javascript from handlbars */
   cards = {{{JSON_CARDS}}}
-  const userId = {{{userInfo}}}.userId
-  const gameId = {{{userInfo}}}.userGameId
-  const userSeat = {{{userInfo}}}.userSeat
+  const userId = parseInt({{{userInfo}}}.userId, 10)
+  const gameId = parseInt({{{userInfo}}}.userGameId, 10)
+  const userSeat = parseInt({{{userInfo}}}.userSeat, 10) 
   const GAME_ROOM = `g-${gameId}`
   toServer = { word: {}, game_id: gameId, user_id: userId, game_state: 0 };
   gameState = typeof gameState === 'undefined' ? 0 : gameState
@@ -26,66 +26,76 @@ $(function () {
   send('refresh')
 
   /* player action event */
-  $('#ready-button').click(() => {
-    send('ready')
-  })
-  $('.uno-button').click(() => {
-    if (userSeat === thisGroup.game[0].seat_turn) send('uno')
-  })
-  $('.pass-button').click(() => {
-    if (userSeat === thisGroup.game[0].seat_turn) send('pass')
-  })
-  $('.card-pile').click(() => {
-    if (userSeat === thisGroup.game[0].seat_turn) {
-      oldCards = thisUser.handCards
-      send('draw')
-    }
-  })
+  $('#ready-button').click(() => { send('ready') })
+  $('.uno-button').click(() => { send('uno') })
+  $('.pass-button').click(() => { send('pass') })
+  $('.card-pile').click(() => { send('draw') })
 
   /* socket listening from game server */
   socket.on('game', function(msg) {
-    if (msg.hasOwnProperty("user_id") && msg.user_id === userId)
+    if (userId === msg.user_id)
       userHandler(msg)
 console.log('\nfrom server to user: ', JSON.stringify(msg))
   })
     
   socket.on(GAME_ROOM, function(msg) {
-    if (msg.hasOwnProperty("group") && msg.group === gameId) {
+    if (gameId === msg.group) 
       groupHandler(msg)
-console.log('\nfrom server to group: ', JSON.stringify(msg))
-    }
+ console.log('\nfrom server to group: ', JSON.stringify(msg))
   })
-
-
-                 {{!--$('.show-suit').attr('src', "/images/splash/yellow-suit.png")
-        $('#selectSuitModal').modal('show')--}}
 
 })
 
 function userHandler(msg) {
   thisUser = msg
+  gameState = msg.game_state
+  var inTurn = typeof thisGroup.game !== 'undefined' && thisGroup.game[0].seat_turn
+                === parseInt({{{userInfo}}}.userSeat, 10) ? true : false
   var result = {};
   var order = msg.order;
   switch (order) {
     case 'none':
       result = 'none';
       break;
-    case 'pickColor':
+    case 'select-suit':
+    case 'select-suitpenalty':
       result = 'pick a color';
+      if(inTurn) {
+        redraw(msg)
+        pickColor(order)
+      }
       break;
+    case 'penalty':
+      result = 'penalty'
+      redraw(msg)
+      showPenal()
+      break
     case 'redraw':
       result = 'redraw'
-      if( cards !== {} ) showHandCards(msg.handCards)
+      redraw(msg)
       break
     case 'refresh':
       result = 'refresh';
+      send('refresh')
       break;
     case 'exit':
       result = 'exit';
       break;
     case 'settle':
       result = 'settle'
-      settleCard(msg.handCards)
+      if (inTurn)
+        settleCard(msg.new_card)
+      break
+    case 'next-round':
+      result = 'next-round'
+      setTimeout(function() {
+        send('next-round')
+      }, 6000)
+      break
+    case 'end':
+      result = 'end'
+      send('end')
+      break
     default:
       result = 'no matched order';
   }
@@ -94,64 +104,151 @@ function userHandler(msg) {
 
 function groupHandler(msg) {
   thisGroup = msg
-  var order = msg.hasOwnProperty('order') ? msg.order : ''
-  switch (order) {
+  gameState = msg.game[0].game_state
+  switch (msg.order) {
     case 'readyPlay':
+    case 'none':
       break;
     case 'refresh':
       send('refresh')
       break;
-    default:
-      gameState = msg.game[0].game_state
-      topDiscard(msg)
-      drawArrow(msg)
+    case 'show-win':
+      winInfo = msg
+      send('refresh')
+      setTimeout(() => {
+        showWin(winInfo)
+      }, 200)
+      break;
+    case 'start':
+      showStart(msg)
+      setTimeout(() => {
+        send('refresh')
+      }, 2000)
+      break;
+    case 'uno':
       drawPlayers(msg)
+      break;
+    default:
+      defaultDraw(msg)
   }
+}
+
+function defaultDraw(msg) {
+  topDiscard(msg)
+  drawArrow(msg)
+  drawPlayers(msg)
+  drawRequiredSuit(msg)
+  if (msg.game[0].game_state === 1) $('#noticeModal').modal('hide')
+}
+
+function redraw(msg) {
+  $('.drawn-card').attr('src', '')
+  $('.pass-button').attr('src', '')
+  if( cards !== {} && msg.game_state > 0) showHandCards(msg.handCards)
 }
 
 /* respond to play action */
 function send(word) {
-  if (validAction()) {
+  var validWord = ['ready', 'refresh', 'next-round', 'end'].indexOf(word) >= 0 ? true : false
+  if (validWord || validAction(word)) {
     toServer.game_state = gameState
     toServer.word = word
     sendOut(toServer);
   } else {
-    console.log('invalid, no send action')
+    console.log(`ignored an invalid send '${word}' action`)
   }
 }
 
-function validAction() {
-  return true
+function sendColor(color) {
+  send(color)
+  $('#selectSuitModal').modal('hide')
 }
 
+function validAction(word) {
+  var inTurn = (typeof thisGroup.game !== 'undefined' && thisGroup.game[0].seat_turn === parseInt({{{userInfo}}}.userSeat, 10)) ? true : false
+  var numberMatch = typeof word === 'number' && cards[thisGroup.game[0].top_discard].number_symbol === cards[word].number_symbol ? true : false
+  var colorMatch = checkColor(word)
+  var validSettle = checkSettle(word)
+  var validAct = checkAct(word)
+  var validWild4 = checkWild4(word)
+  return inTurn && (numberMatch || colorMatch || validAct) && validSettle && validWild4
+}
+
+function checkColor(word) {
+  var colorMatch
+  var wild = thisGroup.game[0].top_discard > 99
+  if (typeof word === 'number' && word <= 99 && cards[thisGroup.game[0].top_discard].color === cards[word].color)
+    colorMatch = true
+  else if (typeof word === 'number' && word > 99)
+    colorMatch = true
+  else if (wild && thisGroup.game[0].required_color !== null 
+       && typeof word === 'number' && thisGroup.game[0].required_color === cards[word].color) 
+    colorMatch = true
+  else if (wild && thisGroup.game[0].required_color === null
+        && ['r','y','g','b'].indexOf(word) >= 0)
+    colorMatch = true
+  else colorMatch = false
+
+  return colorMatch
+}
+
+function checkAct(word) {
+  return (word === 'draw' && thisUser.order !== 'settle')
+          || (word === 'pass' && thisUser.order === 'settle')
+          || (word === 'uno' && thisUser.handCards.length === 2 && playable())
+}
+
+function checkSettle(word) {
+  return thisUser.order !== 'settle' || thisUser.order === 'settle' && (word === thisUser.new_card || word === 'pass')
+}
+
+function checkWild4(word) {
+  var validWild4 = true
+  if (typeof word === 'number' && word > 103) {
+    thisUser.handCards.forEach(element => {
+      if ( (cards[thisGroup.game[0].top_discard].color === cards[element.card_id].color
+            || thisGroup.game[0].required_color === cards[element.card_id].color)
+            && cards[element.card_id].color !== 'n' )
+        validWild4 = false
+    })
+  }
+  return validWild4
+}
+
+function playable() {
+  var validUno = false
+  thisUser.handCards.forEach(card => {
+    if ((cards[thisGroup.game[0].top_discard].color === cards[card.card_id].color)
+            || (thisGroup.game[0].required_color === cards[card.card_id].color)
+            || (cards[thisGroup.game[0].top_discard].number_symbol === cards[card.card_id].number_symbol)
+            || (card.card_id > 99)) {
+      validUno = true
+    }
+  })
+  return validUno
+}
+ 
 function sendOut(outPackage) {
+  console.log('send to server: ', outPackage)
   socket.emit('game', outPackage)
 }
 
-function settleCard(newCards) {
-  var cardId = newOne(oldCards, newCards)
-  var newCard = '/images/cards/' + cards[cardId].image_url
-  var image = `<img class="drawn-card" src="${newCard}" ondragend="send(${cardId})"
-                  onclick="send(${cardId})" />`
-  $('.show-tmp-card').html(image) 
+function settleCard(newCard) {
+  var url = '/images/cards/' + cards[newCard].image_url
+  var image = `<img class="drawn-card" src="${url}" ondragend="send(${newCard})"
+                  onclick="send(${newCard})" />`
+  $('.show-tmp-card').html(image)
+  $('.pass-button').attr('src', '/images/splash/pass-button.png')
 }
 
-function newOne(olds, news) {
-  var newCard, isNew
-  news.forEach(element => {
-    newCard = element.card_id
-    console.log('new card id: ', newCard)
-    isNew = true
-    olds.forEach(e => {
-      if(newCard === e.card_id) isNew = false
-    })
-    if (isNew) return newCard
-  })
-  return null
+function drawRequiredSuit(msg) {
+  var suit = msg.game[0].required_color
+  var resource = suit !== null ? SUIT_SIGN[suit] : ''
+  console.log('show suit resource: ', resource, ' color: ', suit)
+  $('.show-suit').attr('src', resource)
 }
 
 function showHandCards(handCards) {
-  if (handCards.length > 0) {
     var image = '', oneCard = ''    
     handCards.forEach(element => {
       var cardId = element.card_id
@@ -160,7 +257,6 @@ function showHandCards(handCards) {
                   onclick="send(${cardId})" />`
     })
     $('.hand-cards').html(image)
-  }
 }
 
 function topDiscard(msg) {
@@ -203,17 +299,88 @@ function drawPlayer(player, msg) {
 
   var flag = ''
   if (gameState === 0 && player.ready_play) flag = READY_FLAG
-  else if (player.say_uno) flag = SAY_UNO
   else if (player.seat_number === msg.game[0].seat_turn) flag = FOCUS_LIGHT
   else if (gameState > 0) flag = player.seat_number !== {{{userInfo}}}.userSeat ? INHANDS : ''
   $(`#${seatList[seat]} .show-flag`).attr('src', flag)
+  if (player.say_uno) $(`#${seatList[seat]} .uno-sign`).attr('src', SAY_UNO)
+    else $(`#${seatList[seat]} .uno-sign`).attr('src', '')
   if (player.score > 0) $(`#${seatList[seat]} .badge`).html(player.score)
+}
+
+function showWin(msg) {
+  var handCards = '', title = '', tailer = '', gain = 0
+  var gameOver = msg.winning.total_score >= 500 ? true : false
+  if (gameOver) {
+    title = '<h2>GAME OVER</h2>'
+    tailer = 'You will be back to game room in seconds'
+  } else {
+    tailer = 'Next round will begin in seconds'
+  }
+
+  var content = '<h4>Cards remained in players\' hands</h4><ul>'
+  msg.winning.remain_cards.forEach(element => {
+    var detail = remainCards(element.handCards)
+    gain += detail.sum
+    handCards = detail.cardImages
+    content += `<li><img class="user-image" src="/images/avatars/${element.avatar}" />
+                    ${element.user_name}
+                    ${handCards} sum: ${detail.sum}
+                </li>`
+  })
+  content += `</ul><br><h4>${tailer}</h4>
+      <br>
+      <div class="loader center-block">
+      </div>`
+
+  var header = `${title}
+                <img class="user-image" src="/images/avatars/${msg.winning.winner_image}" />
+                <b>${msg.winning.winner}</b> has won ${gain} points at this round. 
+                <b>Total: </b>${msg.winning.total_score}`
+
+  $('#myNoticeLabel').html(header)
+  $('.notice-modal-body').html(content)
+  $('#noticeModal').modal('show')
+  if (gameOver) setTimeout(() => {
+    location.reload()
+  }, 6000)
+}
+
+function showPenal() {
+  $('#myNoticeLabel').html('You have got two cards penalty for not calling "Uno"')
+  $('.notice-modal-body').html('')
+  $('#noticeModal').modal('show')
+  setTimeout(() => {
+    $('#noticeModal').modal('hide')
+  }, 3000)
+}
+
+function showStart() {
+  $('#myNoticeLabel').html('Game is starting now')
+  $('.notice-modal-body').html('')
+  $('#noticeModal').modal('show')
+  setTimeout(() => {
+    $('#noticeModal').modal('hide')
+  }, 2000)
+}
+
+function remainCards(handCards) {
+  var points = 0, images = ''
+  handCards.forEach(card => {
+    points += cards[card].point
+    images += `<img class="remain-cards" src="/images/cards/${cards[card].image_url}" />`
+  })
+  return { sum: points, cardImages: images }
 }
 
 function mapSeat(seatNum, length) {
   var mainSeat = {{{userInfo}}}.userSeat
   var number = seatNum < mainSeat ? length - mainSeat + seatNum : seatNum - mainSeat
   return number
+}
+
+function pickColor(order) {
+  if(order === 'select-suitpenalty') $('#selectSuitModal h4').html('You have got two cards penalty for not calling "Uno"')
+  $('#selectSuitModal').modal('show')
 }
 
 </script>

@@ -55,19 +55,26 @@
       console.log('msg received ', msg)
       if(msg.hasOwnProperty('createGame')) {
         $('.list-group').append(newGameRoom([msg]))
+        joinButtonStatus(true, msg.game_id)
       } else if(msg.hasOwnProperty('gameStarted')) {
-        $(`#game-${msg.game_id}-button`).hide()
-      }
-      else {
+        joinButtonStatus(false, msg.game_id)
+      } else {
         $('#Game-' + msg.game_id).append(addPlayer(msg))
-        if(msg.joinable === false) {
-          $(`#game-${msg.game_id}-button`).hide()
-          $(`#game-${msg.game_id}-ban`).addClass('glyphicon glyphicon-ban-circle')
-        }
+        joinButtonStatus(msg.joinable, msg.game_id)
       }
     })
 
   })
+
+  function joinButtonStatus(joinable, gameId) {
+    if(!joinable) {
+      $(`#game-${gameId}-button`).hide()
+      $(`#game-${gameId}-ban`).show()
+    } else {
+      $(`#game-${gameId}-ban`).hide()
+      $(`#game-${gameId}-button`).show()
+    }
+  }
 
   function addPlayer(msg) {
     return `, <img  class="user-image" src="/images/avatars/${msg.image_url}" />
@@ -94,22 +101,22 @@
         members.push(rooms[i])
       } else {
         $('.list-group').append(newGameRoom(members))
+        joinButtonStatus(rooms[i].joinable, rooms[i].game_id)
         gameId = rooms[i].game_id
         members = [rooms[i]]
       }
 
-      if(i === arrayLength - 1)
+      if(i === arrayLength - 1) {
         $('.list-group').append(newGameRoom(members))
-
-      if(!rooms[i].joinable)
-        $(`#game-${rooms[i].game_id}-button`).hide()
-        $(`#game-${rooms[i].game_id}-ban`).addClass('glyphicon glyphicon-ban-circle')
+      }
     }
   }
 
   function newGameRoom(msg) {
     var gameId = msg[0].game_id
     var addOddList = oddGameList ? ' odd-list' : ''
+    var showButton = msg[0].joinable ? 'initial' :'none'
+    var showBan = msg[0].joinable ? 'none' : 'initial'
     var thisGame = `<li class="list-group-item${addOddList}">
         <span id="Game-${gameId}" >
           Game-${gameId}: `
@@ -119,10 +126,10 @@
         <b>${msg[i].user_name}</b> `
     }
     thisGame += `</span>
-      <button id="game-${gameId}-button" value="${gameId}" type="button" class="btn btn-success pull-right btn-join-game">Join</button>
-      <span id="game-${gameId}-ban" class="pull-right"></span>
-    </li>`
-
+                 <button id="game-${gameId}-button" value="${gameId}" type="button" 
+                    style="display: ${showButton};" class="btn btn-success pull-right btn-join-game">Join</button>
+                 <span id="game-${gameId}-ban" style="display: ${showBan};" class="glyphicon glyphicon-ban-circle pull-right"></span>
+                  </li>`
     oddGameList = oddGameList ? false : true
     return thisGame
   }

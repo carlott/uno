@@ -41,8 +41,10 @@ CREATE TABLE IF NOT EXISTS Games (
   direction SMALLINT DEFAULT 1,
   next_order SMALLINT,
   top_discard INTEGER REFERENCES Cards(id),
+  required_color VARCHAR(1),
   joinable BOOLEAN DEFAULT TRUE,
-  game_state INTEGER DEFAULT 0
+  game_state INTEGER DEFAULT 0,
+  time_stamp TIMESTAMP WITH TIME ZONE
 );
 
 DROP TABLE IF EXISTS Messages CASCADE;
@@ -71,9 +73,10 @@ CREATE TABLE IF NOT EXISTS Players (
   game_id INTEGER REFERENCES Games(id) ON DELETE CASCADE,
   user_id INTEGER REFERENCES Users(id),
   ready_play BOOLEAN DEFAULT FALSE,
+  to_do VARCHAR(64) DEFAULT NULL,
+  drawn_card INTEGER DEFAULT NULL,
   seat_number SMALLINT NOT NULL,
   say_uno BOOLEAN DEFAULT FALSE,
-  announce_suit VARCHAR(1) DEFAULT NULL,
   score INTEGER DEFAULT 0,
   PRIMARY KEY (game_id, user_id)
 );

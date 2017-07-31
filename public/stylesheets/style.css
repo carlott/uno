@@ -75,7 +75,7 @@ body > .container {
 }
 
 code {
-  font-size: 80%;
+  font-size: 100%;
 }
 
 /* game board */
@@ -90,6 +90,13 @@ code {
 }
 .gameroom .card {
   height: 100px;
+}
+.drawn-card {
+  height: 130px;
+  z-index: 20;
+}
+.remain-cards {
+  max-height: 40px;
 }
 .gameroom {
   background: url("/images/splash/unoBG150.jpg")  no-repeat center center;
@@ -124,12 +131,16 @@ code {
   z-index: -10;
   max-height: 40px;
 }
+.uno-sign {
+  max-height: 22px;
+}
 .show-suit {
-  margin-top: 20px;
+  max-height: 70px;
 }
 .show-tmp-card {
   position: absolute;
   height: 150px;
+  top: -70px;
 }
 .suits {
   height: 280px;
@@ -148,11 +159,33 @@ code {
   margin-left: auto;
   margin-right: auto;
 }
+.loader {
+  border: 8px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 8px solid blue;
+  border-bottom: 8px solid blue;
+  width: 30px;
+  height: 30px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 .exit-button {
+  display: none;
   margin-top: 100px;
 }
 .user-name {
   color: #999;
+}
+#noticeModal {
+  margin-top: 200px;
 }
 
 /* chat room for lobby and game */

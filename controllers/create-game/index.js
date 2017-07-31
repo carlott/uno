@@ -1,6 +1,6 @@
 const access = require('../../models/access')
 const update = require('../../models/update')
-const boardcastTo = require('../socket-server').boardcastTo
+const broadcastTo = require('../socket-server').broadcastTo
 
 const createGame = (req, res) => {
   update.createGame()
@@ -15,7 +15,7 @@ const createGame = (req, res) => {
   .then(data => {
     var addGame = Object.assign({createGame: true, game_id: req.session.userGameId}, data)
     res.json({success: true})
-    boardcastTo('lobby-list', addGame)
+    broadcastTo('lobby-list', addGame)
   })
   .catch(err => {
     res.json({success: false})

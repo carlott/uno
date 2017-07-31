@@ -1,6 +1,7 @@
 <!-- Modal -->
 <div class="modal fade" id="selectSuitModal" tabindex="-1" role="dialog" 
-     aria-labelledby="selectSuitLabel" aria-hidden="true">
+     aria-labelledby="selectSuitLabel" aria-hidden="true"
+     data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <!-- Modal Body -->
@@ -8,18 +9,21 @@
               <div class="panel" height="150">
                 <h3>Select a Suit</h3><br>
                 <div class="col-xs-3 col-sm-3 well">
-                  <a href="#"><img class="img-responsive" src="/images/splash/red-suit.png" onclick="post('r')" /></a>
+                  <a href="#"><img class="img-responsive" src="/images/splash/red-suit.png" onclick="sendColor('r')" /></a>
                 </div>
                 <div class="col-xs-3 col-sm-3 well">
-                  <a href="#"><img class="img-responsive" src="/images/splash/yellow-suit.png" onclick="post('y')" /></a>
+                  <a href="#"><img class="img-responsive" src="/images/splash/yellow-suit.png" onclick="sendColor('y')" /></a>
                 </div>
                 <div class="col-xs-3 col-sm-3 well">
-                  <a href="#"><img class="img-responsive" src="/images/splash/green-suit.png" onclick="post('g')" /></a>
+                  <a href="#"><img class="img-responsive" src="/images/splash/green-suit.png" onclick="sendColor('g')" /></a>
                 </div>
                 <div class="col-xs-3 col-sm-3 well">
-                  <a href="#"><img class="img-responsive" src="/images/splash/blue-suit.png" onclick="post('b')" /></a>
+                  <a href="#"><img class="img-responsive" src="/images/splash/blue-suit.png" onclick="sendColor('b')" /></a>
                 </div>
               </div>
+            </div>
+            <div>
+              <h4></h4>
             </div>
         </div>
     </div>

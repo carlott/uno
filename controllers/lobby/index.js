@@ -3,7 +3,7 @@ const access = require('../../models/access')
 const LOBBY_ID = -1
 
 const lobby = (req, res) => {
-  access.getGames()
+  return access.getGames()
   .then(data => {
     res.locals.games = JSON.stringify(data)
     return access.getMessages(LOBBY_ID)  // launch messages only the first page load

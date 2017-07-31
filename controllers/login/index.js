@@ -3,8 +3,7 @@ const bcrypt = require('bcrypt')
 const userState = require('../user-state')
 
 const login = (req, res) => {
-  console.log('email: %s password: %s', req.body.email, req.body.password)
-  access.login(req.body.email, req.body.password)
+  return access.login(req.body.email, req.body.password)
   .then(data => {
     if(data !== null) {
       console.log('data ', data)

@@ -74,6 +74,8 @@
 
   $('#noAccount').click(() => {
       $('#loginModal').modal('hide')
+      $('.sign-up-part').show()
+      $('.guest-sign-up').attr('value', '')
       $('#signUpModal').modal('show')
   })
 
@@ -81,6 +83,7 @@
       e.preventDefault()
       $('#loginModal').modal('hide')
   })
+
 
   function noEnter() {
       return !(window.event && window.event.keyCode == 13)

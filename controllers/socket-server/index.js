@@ -9,34 +9,37 @@ const socketServer = (app, server) => {
   app.set('io', io)
 
   io.on('connection', socket => {
-      console.log('a socket client connected')
+    console.log('a socket client connected')
 
-      socket.on('disconnect', data => {
-          console.log('a socket client disconnected')
-      })
+    socket.on('disconnect', data => {
+      console.log('a socket client disconnected')
+    })
 
-      socket.on('chat', function(msg) {
-        io.emit(msg.toChatRoom, msg)
-        chatLog(msg)
-      })
+    socket.on('chat', function(msg) {
+      io.emit(msg.toChatRoom, msg)
+      chatLog(msg)
+    })
 
-      socket.on('game', function(msg) {
-console.log('server received ', JSON.stringify(msg))
-        eventHandler(msg, function(toPlayer, toGroup) {
-          socket.emit('game', toPlayer)
-          boardcast(`g-${toGroup.group}`, toGroup)
-          // io.emit(`g-${toGroup.group}`, toGroup)
-        })
+    socket.on('game', function(msg) {
+console.log('server received ', msg)
+      eventHandler(msg, function(toPlayer, toGroup) {
+        socket.emit('game', toPlayer)
+        broadcast(`g-${toGroup.group}`, toGroup)
+        if (toGroup.order === 'start')
+          notifyLobby(toGroup.group)
       })
+    })
   })  // end of io.on
 
 }
 
-function boardcast (channel, msg) {
+function broadcast (channel, msg) {
   io.emit(channel, msg)
 }
 
-
+function notifyLobby(gameId) {
+  io.emit('lobby-list', { gameStarted: true, game_id: gameId })
+}
 
 module.exports = { server: socketServer,
-                   boardcastTo: boardcast }
+                   broadcastTo: broadcast }

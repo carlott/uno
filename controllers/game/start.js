@@ -1,68 +1,56 @@
 const access = require('../../models/access')
 const update = require('../../models/update')
-const boardcastTo = require('../socket-server').boardcastTo
 
 const DEALT_CARDS = 7
+const NUM_OF_CARDS = 108
 
 /* function starts the game when all players are ready */
 const start = (msg) => {
-  var numOfCards, array, game_players, game_cards, topOrder
+  var array, game_players, game_cards, topOrder, rows
 
-  return access.cards().then(result => {
-    numOfCards = result.length
-  })
-  .then( () => {
-    array = oneArray(numOfCards)
-
-    shuffle(array)
-    shuffle(array)
-  
-    return update.deleteOldGameCards(msg.game_id)
-  })
-  .then( () => {
-    var promises = [];
-    array.forEach((element, index) => {
-      promises.push(update.newGameCards(msg.game_id, element, null, index))
-    });
-    return Promise.all(promises)
-  })
-  .then( () => {
-    return access.thisGamePlayers(msg.game_id)
-  })
+  return access.thisGamePlayers(msg.game_id)
   .then( data => {
     game_players = data
     topOrder = DEALT_CARDS * game_players.length
-
-    var i, j = 0
-    var promises = []
-    game_players.forEach( element => {
-      for (i = 0; i < DEALT_CARDS; i++ ) {
-        var userId = element.user_id
-        var pileOrder = i+j
-        promises.push(update.dealtGameCards(userId, msg.game_id, pileOrder))
-      }
-      j += DEALT_CARDS
-    })
-    return Promise.all(promises)
+    array = oneArray(NUM_OF_CARDS)
+    do {
+      shuffle(array)
+      shuffle(array)
+    } while (array[topOrder] > 99)
+    rows = gameCards(array, game_players)
+    return update.deleteOldGameCards(msg.game_id)
+  })
+  .then( () => {
+    return update.newGameCards(rows)
   })
   .then( () => {
     return access.getPileCardId(msg.game_id, topOrder)
   })
   .then( result => {
+    msg.word = 'start'
     return update.startGame(++topOrder, result.card_id, msg.game_id)
   })
   .then( result => {
-    boardcastTo('lobby-list', {gameStarted: true})
-    return update.dealtGameCards(null, msg.game_id, --topOrder)
-  })
-  .catch( e => {
-    console.log(e)
+    return update.dealtGameCards(null, msg.game_id, --topOrder, 1)
   })
 } // end of start
 
-function oneArray(numOfCards) {
+function gameCards(array, players) {
+  var gameId = players[0].game_id
+  var totalDealtCards = players.length * DEALT_CARDS
+  var rows = [], i, j
+  for (i=0, j=0; i < totalDealtCards; i++, j=(j+1)%players.length) {
+    rows.push({ game_id: gameId, card_id: array[i], user_id: players[j].user_id, pile_order: null })
+  }
+  for(; i < NUM_OF_CARDS; i++) {
+    rows.push({ game_id: gameId, card_id: array[i], user_id: null, pile_order: i })
+  }
+  return rows
+}
+
+function oneArray(NUM_OF_CARDS) {
   var i, arr = []
-  for (i = 0; i < numOfCards; i++) {
+  for (i = 0; i < NUM_OF_CARDS; i++) {
     arr.push(i)
   }
   return arr
@@ -79,4 +67,5 @@ function shuffle(arr) {
   return arr    
 }  
 
-module.exports = start
+module.exports = { start: start,
+                   shuffle: (array) => shuffle(array) }

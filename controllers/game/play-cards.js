@@ -1,5 +1,8 @@
 const access = require('../../models/access')
 const update = require('../../models/update')
+const sharedCode = require('../../models/shared-code')
+const newPile = require('./pile-discards')
+const win = require('./win')
 
 var cards   // local global for local functions
 access.cards().then(result => {
@@ -13,193 +16,164 @@ access.cards().then(result => {
  * deal with the card played by a player
  * msg: { word:<action>, game_state:integer, game_id:integer, user_id:integer }
  */
-const playCards = msg => {
-  var thisGame, thisGameCards, thisGamePlayers, promises
+const playCards = (msg) => {
+  var thisGame, thisGameCards, thisGamePlayers, promises, handCards, isWon, validPlay, newPileCard
 
-  promises = [ access.thisGame(msg.game_id)
-              , access.gameCards(msg.game_id)
-              , access.thisGamePlayers(msg.game_id) ]
-  return Promise.all(promises).then(values => {
+  promises = sharedCode.gamePromises(msg)
+  promises.push(update.noToDo(msg.game_id))
+  return Promise.all(promises)
+  .then(values => {
     thisGame = values[0]
     thisGameCards = values[1]
     thisGamePlayers = values[2]
+    handCards = values[3]
 
-    if (validPlay(msg, thisGame, thisGamePlayers)) {
-      promises = dealCard(msg, thisGame, thisGameCards, thisGamePlayers)
+    validPlay = sharedCode.validPlay(msg, thisGame, thisGamePlayers)
+    isWon = handCards.length === 1 ? true : false
+    newPileCard = needNewPile(msg, thisGame)
+    if (newPileCard) {
+      return newPile(msg)
+    } else return []
+  })
+  .then(() => {
+    if (newPileCard)
+      promises = [ access.thisGame(msg.game_id)
+        , access.gameCards(msg.game_id) ]
+    else promises = []
+    return Promise.all(promises)
+  })
+  .then(data => {
+    if (newPileCard) {
+      thisGame = data[0]
+      thisGameCards = data[1]
+    }
+    // if (validPlay(msg, thisGame, thisGamePlayers)) {
+    if (validPlay) {
+      promises = dealCard(msg, thisGame, thisGameCards, thisGamePlayers, handCards, isWon)
     } else {
       promises = []
       console.log('not valid play')
     }
     return Promise.all(promises)
   })
-  // .then(value => {
-  //    console.log('returned promises from value',value)
-  //  Promise.all(value).then(values => {
-  //     console.log('promises return from dealCard(..) ', value)
-  //     console.log('update database finished')
-  //   })
-  // })
-  .catch( Error => {
-    console.log(Error)
+  .then(() => {
+    if (validPlay && isWon)
+      return win(msg)
+    else return []
   })
 } // end of playCards
 
-function validPlay(msg, thisGame, thisGamePlayers) {
-  var inTurn = colorMatch = numberMatch = validState = anyCard = false
-
-
-  // check if the top discard is action card
-  if (cards[thisGame[0].top_discard].number_symbol > 12 ) anyCard = true
-console.log('topdiscard ',cards[thisGame[0].top_discard].number_symbol)
-  // check if in valid state
-  validState = (msg.game_state === thisGame[0].game_state) ? true : false
-
-  // check if in turn
-  var player=0;
-  thisGamePlayers.forEach(element => {
-	player++;
-    if (msg.user_id === element.user_id &&
-          element.seat_number === thisGame[0].seat_turn) {
-      inTurn = true
-	  
-    }
-  })
-  if (msg.word === 'draw') return inTurn;
-  // check if wild cards
-  if (msg.word > 99) return inTurn;
-
-  // check color
-  var cardColor
-  if (cards[thisGame[0].top_discard].color === cards[msg.word].color)
-      colorMatch = true
-
-  // check number
-  if (cards[thisGame[0].top_discard].number_symbol === cards[msg.word].number_symbol)      
-    numberMatch = true
-
-    console.log('inturn: ',inTurn, ' valid state: ', validState, ' color: ',colorMatch, ' number: ',numberMatch, ' anyCard: ',anyCard)
-
-    console.log(' valid play? ', inTurn && validState && (colorMatch || numberMatch))
-
-  //return anyCard || (validState && (colorMatch || numberMatch)) // test only
-
-  return (anyCard && inTurn) || (inTurn && validState && (colorMatch || numberMatch))
-} // end of validState
-
-function dealCard(msg, thisGame, thisGameCards, thisGamePlayers) {
+function dealCard(msg, thisGame, thisGameCards, thisGamePlayers, handCards, isWon) {
   var promises = []
-  var thisCard //= (typeof msg.word === 'number') ? cards[msg.word].number_symbol : msg.word
-  var newSeatTurn
+  var thisCard, newSeatTurn, missedSeatTurn, addPenaltyOrder
+  var penalty = !saidUno(msg, thisGamePlayers, handCards, promises) ? true : false 
 
   thisCard = (typeof msg.word === 'number') ? cards[msg.word].number_symbol : msg.word
 
-   if ( thisCard === 10 ) {
-    // skip card
+  if (penalty) promises.push(update.dealtGameCards(msg.user_id, msg.game_id, thisGame[0].next_order, 2))
+  newNextOrder = penalty ? thisGame[0].next_order + 2 : thisGame[0].next_order
+  addPenaltyOrder = penalty ? 2 : 0
 
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
+  if ( thisCard === 10 ) {
+    // skip card (the player lost this turn)
     promises.push(update.playNumberCard(msg.game_id, msg.word))
-    getNewSeatTurn(thisGame, 2).then( newSeatTurn => {
-
-    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    });
+    newSeatTurn = sharedCode.newSeatTurn(thisGame, 2)
+    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction, thisGame[0].next_order + addPenaltyOrder
+                    , msg.word, ++thisGame[0].game_state, msg.game_id, null))
+    // promises.push(update.noToDo(msg.game_id, msg.user_id))
   } else if ( thisCard === 11 ) {
-    // reverse card
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
+    // reverse card (changes the play direction)
     promises.push(update.playNumberCard(msg.game_id, msg.word))
     var newDirection = -1 * thisGame[0].direction
-
-    getNewSeatTurn(thisGame, -1).then( newSeatTurn => {
-
-    promises.push(update.updateGame(newSeatTurn, newDirection
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    });
- } else if ( msg.word === 'draw') {
-   // draw a card
-   promises.push(update.dealtGameCards(msg.user_id, msg.game_id, ++thisGame[0].next_order))
-   getNewSeatTurn(thisGame, 1).then( newSeatTurn => {
-   promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, thisGame[0].top_discard, ++thisGame[0].game_state, msg.game_id))
-    });
- 
- } else if( thisCard < 10 ) {
+    newSeatTurn = sharedCode.newSeatTurn(thisGame, -1)
+    promises.push(update.updateGame(newSeatTurn, newDirection, thisGame[0].next_order + addPenaltyOrder
+                     , msg.word, ++thisGame[0].game_state, msg.game_id, null))
+    // promises.push(update.noToDo(msg.game_id, msg.user_id))
+  } else if( thisCard < 10 ) {
     // number card
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
     promises.push(update.playNumberCard(msg.game_id, msg.word))
-    // following not set seat_turn + 1 for testing thd same player
-    // game state not thisGame.game_state + 1
-    getNewSeatTurn(thisGame, 1).then( newSeatTurn => {
-    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    });
-  }
-  
-   else if ( thisCard === 12 ) {
-    // draw 2 card
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
+    newSeatTurn = sharedCode.newSeatTurn(thisGame, 1)
+    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction, thisGame[0].next_order + addPenaltyOrder
+                     , msg.word, ++thisGame[0].game_state, msg.game_id, null))
+    // promises.push(update.noToDo(msg.game_id, msg.user_id))
+  } else if ( thisCard === 12 ) {
+    // next seat draws 2 cards and misses a turn
     promises.push(update.playNumberCard(msg.game_id, msg.word))
-    getNewSeatTurn(thisGame, 1).then( passedSeatTurn => {
-    	thisGamePlayers.forEach(element => {
-         	if ( element.seat_number === passedSeatTurn ) {
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-    			getNewSeatTurn(thisGame, 1).then( newSeatTurn => {
-  					  promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    			});
-			
-		    }
-		});
-    });
-    // let go temparary
-
+    missedSeatTurn = sharedCode.newSeatTurn(thisGame, 1)
+    thisGamePlayers.forEach(element => {
+      if ( element.seat_number === missedSeatTurn ) {
+        promises.push(update.dealtGameCards(element.user_id, msg.game_id, newNextOrder, 2))
+        promises.push(update.say_uno(msg.game_id, element.user_id, false))
+      }
+    newSeatTurn = sharedCode.newSeatTurn(thisGame, 2)
+    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction, thisGame[0].next_order+2 + addPenaltyOrder
+                , msg.word, ++thisGame[0].game_state, msg.game_id, null))    
+    // promises.push(update.noToDo(msg.game_id, msg.user_id))
+    })
   } else if ( thisCard === 13 ) {
     // wild card
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
     promises.push(update.playNumberCard(msg.game_id, msg.word))
-    // following not set seat_turn + 1 for testing thd same player
-    // game state not thisGame.game_state + 1
-    getNewSeatTurn(thisGame, 1).then( newSeatTurn => {
-    promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    // let go temparary
-	});
-
+    promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction, thisGame[0].next_order + addPenaltyOrder
+                     , msg.word, ++thisGame[0].game_state, msg.game_id, null))
+    if (!isWon)
+      promises.push(update.requiredAction(msg.game_id, msg.user_id, 'select-suit', thisGame[0].next_order))
   } else if ( thisCard === 14 ) {
-    // wild draw 4 card
-    promises.push(update.addPileOrder(msg.game_id, thisGame[0].next_order))                     
-    promises.push(update.playNumberCard(msg.game_id, msg.word))
-    // following not set seat_turn + 1 for testing thd same player
-    // game state not thisGame.game_state + 1
-    getNewSeatTurn(thisGame, 1).then( passedSeatTurn => {
-    	thisGamePlayers.forEach(element => {
-         	if ( element.seat_number === passedSeatTurn ) {
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-   				promises.push(update.dealtGameCards(element.user_id, msg.game_id, ++thisGame[0].next_order))
-    			getNewSeatTurn(thisGame, 1).then( newSeatTurn => {
-  					  promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
-                     , thisGame[0].next_order, msg.word, ++thisGame[0].game_state, msg.game_id))
-    			});
-			
-		    }
-        });
-    });
-    // let go temparary
-
+    // wild draw 4 card -- valid if no card in hand matches the color of the top discard (next seat draws 4 cards)
+    var validWild4 = true
+    handCards.forEach(element => {
+      if (( cards[thisGame[0].top_discard].color === cards[element.card_id].color
+           || thisGame[0].required_color === cards[element.card_id].color )
+           && element.card_id < 100 )
+        validWild4 = false
+    })
+    if (validWild4) {
+      promises.push(update.playNumberCard(msg.game_id, msg.word))
+      missedSeatTurn = sharedCode.newSeatTurn(thisGame, 1)
+      thisGamePlayers.forEach(element => {
+        if ( element.seat_number === missedSeatTurn ) {
+          promises.push(update.dealtGameCards(element.user_id, msg.game_id, newNextOrder, 4))
+          promises.push(update.say_uno(msg.game_id, element.user_id, false))
+        }
+      })
+      promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction, thisGame[0].next_order+4 + addPenaltyOrder
+                       , msg.word, ++thisGame[0].game_state, msg.game_id, null))    
+      if (!isWon)
+        promises.push(update.requiredAction(msg.game_id, msg.user_id, 'select-suit', thisGame[0].next_order))
+    } else {
+      console.log('invalid wild 4 play')
+    }
   }
-  
 
+  if (penalty) promises.push(update.addToDo(msg.game_id, msg.user_id, 'penalty'))
   return promises
 } // end of dealCard
+ 
+function countNeeds(msg) {
+  var num = 0
+  if (typeof msg.word === 'number') {
+    if(msg.word > 103) num = 4
+    else if(cards[msg.word].number_symbol === 12) num = 2
+    else if(cards[msg.word].number_symbol > 10) num = 1
+  }
+  return num
+}
 
-function getNewSeatTurn(thisGame, step) {
+function needNewPile(msg, thisGame) {
+  var nextOrder = thisGame[0].next_order
+  var requiredCards = countNeeds(msg)
+  console.log('next order will be ', nextOrder + requiredCards, ' >=108 ', (nextOrder + requiredCards) >= 108)
+  return (nextOrder + requiredCards) >= 108
+}
 
-  return new Promise( function(fulfill, reject){
- 	 fulfill( (thisGame[0].seat_turn + step*thisGame[0].direction + thisGame[0].seat_count) % thisGame[0].seat_count);
-  });
+function saidUno(msg, thisGamePlayers, handCards, promises) {
+  var claimedUno = false
+  thisGamePlayers.forEach(element => {
+    if (msg.user_id === element.user_id && element.say_uno === true)
+      claimedUno = true
+  })
+  if (handCards.length > 2 && claimedUno) promises.push(update.say_uno(msg.game_id, msg.user_id, false))
 
+  return claimedUno || handCards.length !== 2
 }
 
 module.exports = playCards

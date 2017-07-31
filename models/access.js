@@ -1,4 +1,4 @@
-const db = require('../db/db')
+const db = require('../db/db').db
 
 const AVATARS = `SELECT * FROM Avatars
                  ORDER BY id`
@@ -13,15 +13,15 @@ const CARDS_IN_HAND = `SELECT card_id
                        AND user_id = $2
                        ORDER BY card_id`
 
-const CARDS_IN_PLAYERS = `SELECT user_id, COUNT(user_id) AS cardCount
+const CARDS_IN_PLAYERS = `SELECT user_id, card_id
                           FROM Game_Cards
                           WHERE game_id = $1
                           AND user_id IS NOT NULL
-                          GROUP BY user_id`
+                          ORDER BY user_id, card_id`
 
 const EXIST_EMAIL_ID =  `SELECT id, email
-                      FROM Users
-                      WHERE email = $1`
+                          FROM Users
+                          WHERE email = $1`
 
 const GET_GAMES = `SELECT P.game_id, A.image_url, U.user_name, G.joinable
                    FROM Avatars A, Games G, Players P, Users U
@@ -40,6 +40,11 @@ const GET_NAME_IMAGE = `SELECT A.image_url, U.user_name
                         WHERE U.avatar_id = A.id
                         AND U.id = $1`                         
 
+const GET_NO_HAND_CARDS = `SELECT card_id
+                            FROM Game_Cards
+                            WHERE game_id = $1
+                            AND user_id IS null`
+
 const GET_PILE_CARDID = `SELECT card_id
                          FROM Game_Cards
                          WHERE game_id = $1
@@ -57,14 +62,14 @@ const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_u
 const GAME_CARDS = `SELECT * FROM Game_Cards
                     WHERE game_id = $1` 
 
-const PLAYERS_THIS_GROUP = `SELECT U.id, U.user_name, U.user_score, P.*, A.image_url
+const PLAYERS_THIS_GROUP = `SELECT P.user_id, U.user_name, U.user_score, P.game_id, P.ready_play
+                              , P.to_do, P.drawn_card, P.seat_number, P.say_uno, P.score, A.image_url
                             FROM Players AS P, Users AS U, Games AS G, Avatars AS A
-                            WHERE U.id =  P.user_id
+                            WHERE P.user_id = U.id
                             AND U.avatar_id = A.id
                             AND P.game_id = G.id
                             AND G.id = $1
                             ORDER BY P.seat_number`
-
 
 const THISGAME_PLAYERS = `SELECT *
                           FROM Players
@@ -96,6 +101,7 @@ module.exports = {
   // for send to client(s)
   cardsInHand: (game_id, user_id) => db.any(CARDS_IN_HAND, [game_id, user_id]),
   cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id),
+  getNoHandCards: (game_id) => db.any(GET_NO_HAND_CARDS, game_id),
   getGames: () => db.any(GET_GAMES),
   getMessages: (game_id) => db.any(GET_MESSAGES, game_id),
   getNameImage: (user_id) => db.oneOrNone(GET_NAME_IMAGE, user_id),

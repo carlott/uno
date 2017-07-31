@@ -5,7 +5,7 @@ const saltRounds = 9
 
 const signup = (req, res) => {
   // check if email address had already taken
-  access.existEmailId(req.body.email)
+  return access.existEmailId(req.body.email)
   .then(result => {
     if (result === null && req.body.password === req.body.confirmPassword) {
       // register user here

@@ -1,4 +1,3 @@
-
 const pgp = require( 'pg-promise' )({
 });
 
@@ -10,5 +9,8 @@ if (connection) console.log('connected to postgres')
 else console.log('db connect failed')
 db=pgp(connection);
 
+const gameCardColumns = new pgp.helpers.ColumnSet(['game_id', 'card_id', 'user_id', 'pile_order']
+    , {table: 'game_cards'})
 
-module.exports=db
+module.exports={ db: db,
+                 gameCardColumns: gameCardColumns }

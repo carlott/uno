@@ -16,11 +16,6 @@ const userState = require('../controllers/user-state')
 /* GET home page. */
 router.get('/', home)
 
-/* GET about page. */
-router.get('/about', (req, res) => {
-  res.render('about', Object.assign({title: 'About'}, userState(req)))
-})
-
 /* POST create-game */
 router.post('/create-game', createGame)
 

@@ -30,32 +30,36 @@
                     {{> page/select-avatar}}
                   </div>
                   <div class="form-group">
-                    <label for="userName">User name</label>
+                    <label for="userName">Your name</label>
                       <input type="name" class="form-control" name="userName" required
                       id="signUpUserName" placeholder="Enter name" onkeypress="return noEnter()"/>
+                      <input type="hidden" class="guest-sign-up" name="guest" value="" />
                   </div>
-                  <div class="form-group">
-                    <label for="signUpEmail">Email address</label>
-                      <input type="email" class="form-control" name="email" required
-                        id="signUpEmail" placeholder="Enter email" onkeypress="return noEnter()"/>
-                      <p id="signUpEmailWarning" class="warning collapse">The email is already registered, please choose another one.</p>
+
+                  <div class="sign-up-part">
+                    <div class="form-group">
+                      <label for="signUpEmail">Email address</label>
+                        <input type="email" class="form-control" name="email" required
+                          id="signUpEmail" placeholder="Enter email" onkeypress="return noEnter()"/>
+                        <p id="signUpEmailWarning" class="warning collapse">The email is already registered, please choose another one.</p>
+                    </div>
+                    <div class="form-group">
+                      <label for="signUpPassword">Password</label>
+                        <input type="password" class="form-control" name="password" required
+                            id="signUpPassword" placeholder="Password" onkeypress="return noEnter()"/>
+                    </div>
+                    <div class="form-group">
+                      <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" class="form-control" name="confirmPassword" required
+                            id="confirmPassword" placeholder="Password" onkeypress="return noEnter()"/>
+                        <p id="passwordWarning" class="warning collapse">Password confirm error: they are not identical!</p>
+                    </div>
                   </div>
-                  <div class="form-group">
-                    <label for="signUpPassword">Password</label>
-                      <input type="password" class="form-control" name="password" required
-                          id="signUpPassword" placeholder="Password" onkeypress="return noEnter()"/>
-                  </div>
-                  <div class="form-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                      <input type="password" class="form-control" name="confirmPassword" required
-                          id="confirmPassword" placeholder="Password" onkeypress="return noEnter()"/>
-                      <p id="passwordWarning" class="warning collapse">Password confirm error: they are not identical!</p>
-                  </div>
-                
+
                   <button type="reset" class="btn btn-default reset-button">Reset</button>
                   <button class="btn btn-default cancel-signup" formnovalidate>Cancel</button>
                   <button type="submit" class="btn btn-primary"
-                        id="signUpSubmit">Sign Up</button>
+                        id="signUpSubmit">Submit</button>
                 </form>
                 
             </div>
@@ -79,15 +83,7 @@
               }
             })
     })
-
-    $('.reset-button').click(() => {
-      $('#signUpEmailWarning').removeClass('in')
-      $('#passwordWarning').removeClass('in')
-    })
-    $('.cancel-signup').click((e) => {
-        e.preventDefault()
-        $('#signUpModal').modal('hide')
-    })
+    
     $('#confirmPassword').focusout(() => {
       if($('#signUpPassword').val() != $('#confirmPassword').val()) {
         $('#passwordWarning').addClass("in")
@@ -100,15 +96,24 @@
     $('#confirmPassword').focus(() => {
       $('#passwordWarning').removeClass('in')
     })
+  
+    $('.reset-button').click(() => {
+      $('#signUpEmailWarning').removeClass('in')
+      $('#passwordWarning').removeClass('in')
+    })
+    $('.cancel-signup').click((e) => {
+        e.preventDefault()
+        $('#signUpModal').modal('hide')
+    })
 
     $('.signUpForm').submit(function(e) {
       e.preventDefault()
       if(validEmail && confirmedPassword) {
         var data = { avatarId: $('select').val(),
-                     password: $('#signUpPassword').val(),
-                     confirmPassword: $('#confirmPassword').val(),
-                     email: $('#signUpEmail').val(),
-                     userName: $('#signUpUserName').val()}
+                    password: $('#signUpPassword').val(),
+                    confirmPassword: $('#confirmPassword').val(),
+                    email: $('#signUpEmail').val(),
+                    userName: $('#signUpUserName').val()}
         $.post('/signup', data, function(res) {
           console.log('response: ', res)
           if(!res.success) {

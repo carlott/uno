@@ -15,14 +15,15 @@
         {{#if userGameId}}
           <li><a href="/game">Game-{{userGameId}}</a></li>
         {{/if}}
-        <li><a href="/about">About</a></li>
+        <li><a href="#" role="button" data-toggle="modal" data-target="#aboutModal"> About</a></li>
+          {{> page/about-modal}}
       </ul>
       <ul class="nav navbar-nav navbar-right">
 				{{#if userName}}
 					<li><a>Hello, {{userName}}</a></li>
           <li><a href="/logout" class="logOutButton"><img class="user-image" src="/images/avatars/{{userImage}}"> Log Out</a></li>
 				{{else}}
-          <li><a href="#" role="button" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="#" class="sign-up-button" role="button" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
             {{> page/signup-modal}}
 					<li><a href="#" role="button" data-toggle="modal" data-target="#loginModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
             {{> page/login-modal}}
@@ -33,11 +34,18 @@
 </nav>
 
 <script>
-  if ($('.modal').width() > $(window).width())
-    $('.modal').width($(window).width() * 0.8)
+  $(function() {
+    if ($('.modal').width() > $(window).width())
+      $('.modal').width($(window).width() * 0.8)
 
-  $('.logOutButton').click(e => {
-    if(!confirm('Are you going to log out?'))
-      e.preventDefault()
+    $('.logOutButton').click(e => {
+      if(!confirm('Are you going to log out?'))
+        e.preventDefault()
+    })
+
+    $('.sign-up-button').on('click', () => {
+      $('.sign-up-part').show()
+      $('.guest-sign-up').attr('value', '')
+    })
   })
 </script>

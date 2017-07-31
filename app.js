@@ -49,7 +49,7 @@ app.use(session({
   secret: 'super problem solver',
   resave: false,
   saveUninitialized: false,
-  expire: 2*3600
+  expire: 2*3600*1000
 }))
 
 app.use('/', index);

@@ -4,7 +4,7 @@ const access = require('../../models/access')
 
 const game = (req, res) => {
   if (userState(req).userGameId !== null) {
-    access.getMessages(userState(req).userGameId)  // launch messages only the first page load
+    return access.getMessages(userState(req).userGameId)  // launch messages only the first page load
     .then(data => {
       res.locals.userInfo = JSON.stringify(userState(req))
       res.locals.messages = JSON.stringify(data)
