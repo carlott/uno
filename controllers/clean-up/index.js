@@ -3,6 +3,9 @@ const update = require('../../models/update')
 const broadcastTo = require('../socket-server').broadcastTo
 
 const cleanUp = () => {
+  cleanGames()
+  cleanMessages()
+
   setInterval(() => {
     cleanGames()
   }, 3600*1000)
@@ -42,12 +45,10 @@ function cleanGames() {
 }
 
 function cleanMessages() {
-  try {
-    update.deleteMessages(new Date() - 5*24*3600*1000)
-  }
-  catch(err) {
+  return  update.deleteMessages('5')  // delete messages that posted 5 days ago
+  .catch(err => {
     console.log(err)
-  }
+  })
 }
 
 module.exports = cleanUp

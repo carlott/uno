@@ -27,7 +27,7 @@ const DELETE_GAME = `DELETE FROM Games
                      WHERE id = $1`
 
 const DELETE_MESSAGES = `DELETE FROM Messages
-                         WHERE post_time < $1`
+                         WHERE post_time < CURRENT_DATE - INTERVAL $1 DAY`
                      
 const DELETE_NO_HAND_CARDS = `DELETE FROM Game_Cards
                               WHERE game_id = $1
@@ -36,7 +36,7 @@ const DELETE_NO_HAND_CARDS = `DELETE FROM Game_Cards
 const DELETE_OLD_GAME_CARDS = `DELETE FROM Game_Cards
                                WHERE game_id = $1`
 
-const DELETE_PLAYER = `DELECT FROM Players
+const DELETE_PLAYER = `DELETE FROM Players
                        WHERE game_id = $1`
 
 const DEALT_GAME_CARDS = `UPDATE Game_Cards
@@ -149,8 +149,8 @@ module.exports = {
 
   deleteGame: (game_id) => db.none(DELETE_GAME, game_id),
 
-  deleteMessages: (post_time) => db.none(DELETE_MESSAGES, post_time),
-  
+  deleteMessages: (daysAgo) => db.none(DELETE_MESSAGES, daysAgo),
+
   deleteNoHandCards: (game_id) => db.none(DELETE_NO_HAND_CARDS, game_id),
 
   deleteOldGameCards: (game_id) => db.none(DELETE_OLD_GAME_CARDS, game_id),
