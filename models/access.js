@@ -23,6 +23,9 @@ const EXIST_EMAIL_ID =  `SELECT id, email
                           FROM Users
                           WHERE email = $1`
 
+const GET_GAME_TIMESTAMPS = `SELECT id, time_stamp
+                             FROM Games`
+
 const GET_GAMES = `SELECT P.game_id, A.image_url, U.user_name, G.joinable
                    FROM Avatars A, Games G, Players P, Users U
                    WHERE A.id = U.avatar_id
@@ -103,6 +106,7 @@ module.exports = {
   cardsInPlayers: (game_id) => db.any(CARDS_IN_PLAYERS, game_id),
   getNoHandCards: (game_id) => db.any(GET_NO_HAND_CARDS, game_id),
   getGames: () => db.any(GET_GAMES),
+  getGameTimestamps: () => db.any(GET_GAME_TIMESTAMPS),
   getMessages: (game_id) => db.any(GET_MESSAGES, game_id),
   getNameImage: (user_id) => db.oneOrNone(GET_NAME_IMAGE, user_id),
   getSeatCount: (game_id) => db.oneOrNone(GET_SEAT_COUNT, game_id),

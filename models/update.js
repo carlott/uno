@@ -22,6 +22,12 @@ const CREATE_GAME = `INSERT INTO Games
                      VALUES
                        (1)
                      RETURNING id`
+
+const DELETE_GAME = `DELETE FROM Games
+                     WHERE id = $1`
+
+const DELETE_MESSAGES = `DELETE FROM Messages
+                         WHERE post_time < $1`
                      
 const DELETE_NO_HAND_CARDS = `DELETE FROM Game_Cards
                               WHERE game_id = $1
@@ -29,6 +35,9 @@ const DELETE_NO_HAND_CARDS = `DELETE FROM Game_Cards
 
 const DELETE_OLD_GAME_CARDS = `DELETE FROM Game_Cards
                                WHERE game_id = $1`
+
+const DELETE_PLAYER = `DELECT FROM Players
+                       WHERE game_id = $1`
 
 const DEALT_GAME_CARDS = `UPDATE Game_Cards
                           SET user_id = $1, pile_order = null
@@ -138,9 +147,15 @@ module.exports = {
   dealtGameCards: (user_id, game_id, pile_order, quantity) => db.none(DEALT_GAME_CARDS
                    , [user_id, game_id, pile_order, quantity]),
 
+  deleteGame: (game_id) => db.none(DELETE_GAME, game_id),
+
+  deleteMessages: (post_time) => db.none(DELETE_MESSAGES, post_time),
+  
   deleteNoHandCards: (game_id) => db.none(DELETE_NO_HAND_CARDS, game_id),
 
   deleteOldGameCards: (game_id) => db.none(DELETE_OLD_GAME_CARDS, game_id),
+
+  deletePlayer: (game_id) => db.none(DELETE_PLAYER, game_id),
 
   createGame: () => db.any(CREATE_GAME),
 

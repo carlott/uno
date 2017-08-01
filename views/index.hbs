@@ -2,35 +2,38 @@
     <div class="jumbotron">
         <img id="play-uno" src="/images/splash/play-uno.png" class="img-responsive home-play" alt="Play UNO">
     </div>
+    {{#if userName}}
     <div class="col-md-6 center">
         <div class="well">
-            <h3>UNO is an American card game. Its rule is simple.</h3>
-            <h3> For details please access to the  
-                <a href="/about">about</a> page.
+            <h3>Hello {{userName}},</h3>
+            <h3>UNO is an American card game. Its rule is quite simple. For details click  
+                <a href="#" role="button" data-toggle="modal" data-target="#aboutModal">here</a>.
             </h3>
-            {{#if userName}}
-                <h3>Hello {{userName}},</h3>
-                <h3>Not yet playing in a game? Go to
-                    <a href="/lobby">lobby</a> to join a group,</h3>
-                <h3>  or you can create a new group there.</h3>
-                <h3>Enjoy it!</h3>
-            {{else}}
-                <h3>Log in to enjoy the game</h3>
-                <p>(sign up, log in bottons are at the top-right navigation bar)</p>
-                <h3>Sign up if you are a new player</h3>
-                <h3>Or play as a guest</h3>
-                <a href="#" role="button" class="btn btn-primary btn-lg btn-block guest-button">Play as a Guest</a>
-            {{/if}}
+            <h3>Not yet playing in a game? Go to the
+                <a href="/lobby">lobby</a> to join a game, or create a new game there.</h3>
+            <h3>Enjoy it!</h3>
         </div>
     </div>
+    {{else}}
+    <div class="col-md-6 center">
+        <div class="well">
+            <div>
+                <h3>Log in to enjoy the game.</h3>
+                <a href="#" class="btn btn-primary btn-lg btn-block home-well-button" role="button" data-toggle="modal" data-target="#loginModal">Log In</a>
+            </div>
+        </div>
+        <div class="well">
+            <div>
+                <h3>Sign up if you are a new player.</h3>
+                <h3>Real E-mail is not required, it is just your identity.</h3>
+                <a href="#" class="btn btn-primary btn-lg btn-block home-well-button" role="button" data-toggle="modal" data-target="#signUpModal">Sign Up</a>
+            </div>
+        </div>
+    </div>
+    {{/if}}
 </div>
 
 <script>
 $(function () {
-  $('.guest-button').on('click', () => {
-    $('.sign-up-part').hide()
-    $('.guest-sign-up').attr('value', 'yes')
-    $('#signUpModal').modal('show')
-  })
 })
 </script>

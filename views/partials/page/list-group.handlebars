@@ -58,6 +58,8 @@
         joinButtonStatus(true, msg.game_id)
       } else if(msg.hasOwnProperty('gameStarted')) {
         joinButtonStatus(false, msg.game_id)
+      } else if(msg === 'reload-page') {
+        location.reload()
       } else {
         $('#Game-' + msg.game_id).append(addPlayer(msg))
         joinButtonStatus(msg.joinable, msg.game_id)

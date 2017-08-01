@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 const expressValidator = require('express-validator')
 const session = require('express-session')
 const uuidv1 = require('uuid/v1')
+const cleanUp = require('./controllers/clean-up')
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -51,6 +52,7 @@ app.use(session({
   saveUninitialized: false,
   expire: 2*3600*1000
 }))
+app.use('/controllers', cleanUp)
 
 app.use('/', index);
 app.use('/users', users);
