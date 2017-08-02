@@ -155,8 +155,11 @@ function send(word) {
     toServer.word = word
     sendOut(toServer);
   } else {
-    console.log(`ignored an invalid send '${word}' action`)
+    toServer.word = 'refresh'
+    console.log(`send "refresh" instead of the invalid '${word}'`)
   }
+  toServer.game_state = gameState
+  sendOut(toServer);
 }
 
 function sendColor(color) {
