@@ -236,6 +236,7 @@ function sendOut(outPackage) {
 }
 
 function settleCard(newCard) {
+  console.log('drawn newCard ', newCard)
   var imageUrl = ''
   if (typeof newCard !== 'undefined')
     imageUrl = '/images/cards/' + cards[newCard].image_url
