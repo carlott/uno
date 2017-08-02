@@ -155,11 +155,8 @@ function send(word) {
     toServer.word = word
     sendOut(toServer);
   } else {
-    {{!-- toServer.word = 'refresh' --}}
-    console.log(`send "refresh" instead of the invalid '${word}'`)
+    console.log(`ignored the invalid send '${word}'`)
   }
-  toServer.game_state = gameState
-  sendOut(toServer);
 }
 
 function sendColor(color) {
@@ -202,7 +199,7 @@ function checkAct(word) {
 }
 
 function checkSettle(word) {
-  return thisUser.order !== 'settle' || thisUser.order === 'settle' && (word == thisUser.new_card || word === 'pass')
+  return thisUser.order !== 'settle' || thisUser.order === 'settle' && (word === thisUser.new_card || word === 'pass')
 }
 
 function checkWild4(word) {
@@ -238,12 +235,13 @@ function sendOut(outPackage) {
 function settleCard(newCard) {
   console.log('drawn newCard ', newCard)
   var imageUrl = ''
-  if (typeof newCard !== 'undefined')
+  if (!isNaN(newCard)) {
     imageUrl = '/images/cards/' + cards[newCard].image_url
-  var image = `<img class="drawn-card" src="${imageUrl}" ondragend="send(${newCard})"
-                  onclick="send(${newCard})" />`
-  $('.show-tmp-card').html(image)
-  $('.pass-button').attr('src', '/images/splash/pass-button.png')
+    var image = `<img class="drawn-card" src="${imageUrl}" ondragend="send(${newCard})"
+                    onclick="send(${newCard})" />`
+    $('.show-tmp-card').html(image)
+    $('.pass-button').attr('src', '/images/splash/pass-button.png')
+  }
 }
 
 function drawRequiredSuit(msg) {

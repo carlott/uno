@@ -8,7 +8,6 @@ const draw = (msg) => {
   var thisGame, thisGameCards, thisGamePlayers, promises=[], handCards, newPileCard 
 
   promises = sharedCode.gamePromises(msg)
-  promises.push(update.noToDo(msg.game_id))
   return Promise.all(promises)
   .then(values => {
     thisGame = values[0]

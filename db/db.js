@@ -1,9 +1,9 @@
 const pgp = require( 'pg-promise' )({
 });
 
-// const db_conf = require('./conf');
-// connection = "postgres://" + db_conf.user+":" + db_conf.password + "@"+db_conf.host+":"+db_conf.port+"/"+db_conf.db;
-connection = process.env.DATABASE_URL
+const db_conf = require('./conf');
+connection = "postgres://" + db_conf.user+":" + db_conf.password + "@"+db_conf.host+":"+db_conf.port+"/"+db_conf.db;
+// connection = process.env.DATABASE_URL
 
 if (connection) console.log('connected to postgres')
 else console.log('db connect failed')
