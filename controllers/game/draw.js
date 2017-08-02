@@ -37,14 +37,12 @@ const draw = (msg) => {
       promises.push(update.dealtGameCards(msg.user_id, msg.game_id, thisGame[0].next_order, 1))
       promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction
                     , thisGame[0].next_order+1, thisGame[0].top_discard, thisGame[0].game_state+1, msg.game_id, thisGame[0].required_color))
+      promises.push(update.requiredAction(msg.game_id, msg.user_id, 'settle', thisGame[0].next_order))
     } else {
       promises = []
       console.log('not valid draw')
     }
     return Promise.all(promises)
-  })
-  .then(() => {
-    return update.requiredAction(msg.game_id, msg.user_id, 'settle', thisGame[0].next_order)
   })
 }
 

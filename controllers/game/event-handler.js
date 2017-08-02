@@ -154,7 +154,7 @@ function orderToGroup(word) {
 
 function checkToDo(msg, group, player) {
   group.players.forEach(element => {
-    if(element.user_id === msg.user_id && element.to_do !== null) {
+    if(element.user_id == msg.user_id && element.to_do !== null) {
       player.order = element.to_do
       player.new_card = element.drawn_card
     }
