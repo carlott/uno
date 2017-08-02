@@ -35,13 +35,13 @@ $(function () {
   socket.on('game', function(msg) {
     if (userId === msg.user_id)
       userHandler(msg)
-console.log('\nfrom server to user: ', JSON.stringify(msg))
+{{!-- console.log('\nfrom server to user: ', JSON.stringify(msg)) --}}
   })
     
   socket.on(GAME_ROOM, function(msg) {
     if (gameId === msg.group) 
       groupHandler(msg)
- console.log('\nfrom server to group: ', JSON.stringify(msg))
+{{!-- console.log('\nfrom server to group: ', JSON.stringify(msg)) --}}
   })
 
 })
@@ -229,7 +229,6 @@ function playable() {
 }
  
 function sendOut(outPackage) {
-  console.log('send to server: ', outPackage)
   socket.emit('game', outPackage)
 }
 
@@ -244,7 +243,6 @@ function settleCard(newCard) {
 function drawRequiredSuit(msg) {
   var suit = msg.game[0].required_color
   var resource = suit !== null ? SUIT_SIGN[suit] : ''
-  console.log('show suit resource: ', resource, ' color: ', suit)
   $('.show-suit').attr('src', resource)
 }
 

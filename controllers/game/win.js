@@ -28,7 +28,6 @@ const win = msg => {
     return Promise.all(promises)
   })
   .then(data => {
-    console.log('total score data[0].score=', data[0].score)
     var action = data[0].score >= 500 ? 'end' : 'next-round'
     msg.word = 'win'
     return update.requiredAction(msg.game_id, msg.user_id, action, thisGame[0].next_order)

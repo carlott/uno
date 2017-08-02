@@ -21,7 +21,7 @@ const socketServer = (app, server) => {
     })
 
     socket.on('game', function(msg) {
-console.log('server received ', msg)
+      console.log('server received ', msg)
       eventHandler(msg, function(toPlayer, toGroup) {
         socket.emit('game', toPlayer)
         broadcast(`g-${toGroup.group}`, toGroup)

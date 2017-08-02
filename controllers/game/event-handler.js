@@ -57,7 +57,6 @@ function handleEvent(msg) {
   if (typeof word === 'number') {
     result = 'get number'
     promise = playCards(msg)
-    // promise = playCards(msg, toPlayer, toGroup)
   } else {
     switch (word) {
       case 'draw':
@@ -157,7 +156,7 @@ function checkToDo(msg, group, player) {
   group.players.forEach(element => {
     if(element.user_id === msg.user_id && element.to_do !== null) {
       player.order = element.to_do
-      if (msg.word === 'draw') player.new_card = element.drawn_card
+      player.new_card = element.drawn_card
     }
   })
 }
@@ -170,7 +169,6 @@ function packOutPackage(msg, toPlayer, toGroup) {
 }
 
 function winInfo(msg, players, playerHandCards) {
-  console.log('now in winInfo()')
   var obj = { remain_cards: [] }
   players.forEach(player => {
     if (msg.user_id === player.user_id) {

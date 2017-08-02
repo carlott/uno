@@ -21,7 +21,6 @@ const uno = msg => {
       promises.push(update.noToDo(msg.game_id, msg.user_id))
     } else {
       promises = []
-      console.log('not valid claim uno')
     }
     return Promise.all(promises)
   })

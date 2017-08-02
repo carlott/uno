@@ -14,13 +14,11 @@ const ready = (msg) => {
     if (result.length > 1)
       result.forEach(element => {
         if (element.ready_play === false) {
-        console.log(element.user_id + " IS NOT READY");
           allReady = false;
         }
       })
     else allReady = false
     if (allReady) {
-      console.log('All ready, now start the game!')
       return start(msg)
     } else {
       return  new Promise((resolve) => {resolve()})

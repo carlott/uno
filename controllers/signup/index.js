@@ -11,7 +11,6 @@ const signup = (req, res) => {
       // register user here
       bcrypt.hash(req.body.password, saltRounds)
       .then(hash => {
-        console.log('hash result: ', hash)
         return update.newUser(req.body.avatarId, hash, req.body.email, req.body.userName)
       })
       .then(() => {
@@ -19,7 +18,6 @@ const signup = (req, res) => {
       })
       .then(data => {
         if(data !== null) {
-          console.log('data ', data)
           bcrypt.compare(req.body.password, data.password)
           .then(result => {
             if(result)
@@ -47,8 +45,6 @@ const signup = (req, res) => {
   .catch (err => {
     console.log(err)
   })
-  console.log('request: %j %j %j %j %j', req.body.avatarId, req.body.email, req.body.userName, req.body.password, req.body.confirmPassword)
-//  res.status(200).send({ warning: 'test sign up warning' }+req.body.avatarId)
 }
 
 module.exports = signup

@@ -19,7 +19,6 @@ const pass = msg => {
       newSeatTurn = sharedCode.newSeatTurn(thisGame, 1)
       promises.push(update.updateGame(newSeatTurn, thisGame[0].direction
                       , thisGame[0].next_order, thisGame[0].top_discard, ++thisGame[0].game_state, msg.game_id, thisGame[0].required_color))
-      // promises.push(update.noToDo(msg.game_id, msg.user_id))
       promises.push(update.say_uno(msg.game_id, msg.user_id, false))
     } else {
       promises = []
