@@ -70,7 +70,7 @@ const NEW_USER = `INSERT INTO Users
                    ($1,$2,$3,$4)`
 
 const NO_TO_DO = `UPDATE Players
-                  SET to_do = null, drawn_card = null
+                  SET to_do = null
                   WHERE game_id = $1`
 
 const PLAY_NUMBER_CARD = `UPDATE Game_Cards

@@ -4,7 +4,7 @@ const newPile = require('./pile-discards')
 const sharedCode = require('../../models/shared-code')
 
 /* deal with user draw a card */
-const draw = msg => {
+const draw = (msg) => {
   var thisGame, thisGameCards, thisGamePlayers, promises=[], handCards, newPileCard 
 
   promises = sharedCode.gamePromises(msg)
