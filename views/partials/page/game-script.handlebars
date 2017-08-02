@@ -236,8 +236,10 @@ function sendOut(outPackage) {
 }
 
 function settleCard(newCard) {
-  var url = '/images/cards/' + cards[newCard].image_url
-  var image = `<img class="drawn-card" src="${url}" ondragend="send(${newCard})"
+  var imageUrl = ''
+  if (typeof newCard !== 'undefined')
+    imageUrl = '/images/cards/' + cards[newCard].image_url
+  var image = `<img class="drawn-card" src="${imageUrl}" ondragend="send(${newCard})"
                   onclick="send(${newCard})" />`
   $('.show-tmp-card').html(image)
   $('.pass-button').attr('src', '/images/splash/pass-button.png')
