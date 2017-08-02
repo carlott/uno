@@ -84,7 +84,7 @@ function userHandler(msg) {
     case 'settle':
       result = 'settle'
       if (inTurn)
-        settleCard(msg.new_card)
+        settleCard(parseInt(msg.new_card, 10))
       break
     case 'next-round':
       result = 'next-round'
@@ -155,7 +155,7 @@ function send(word) {
     toServer.word = word
     sendOut(toServer);
   } else {
-    toServer.word = 'refresh'
+    {{!-- toServer.word = 'refresh' --}}
     console.log(`send "refresh" instead of the invalid '${word}'`)
   }
   toServer.game_state = gameState
@@ -202,7 +202,7 @@ function checkAct(word) {
 }
 
 function checkSettle(word) {
-  return thisUser.order !== 'settle' || thisUser.order === 'settle' && (word === thisUser.new_card || word === 'pass')
+  return thisUser.order !== 'settle' || thisUser.order === 'settle' && (word == thisUser.new_card || word === 'pass')
 }
 
 function checkWild4(word) {
