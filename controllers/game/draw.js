@@ -35,12 +35,13 @@ const draw = (msg) => {
       thisGame = data[0]
       thisGameCards = data[1]
       topPileCard = values[4]
+      console.log('top pilecard ', topPileCard)
     }
     if (sharedCode.validPlay(msg, thisGame, thisGamePlayers)) {
       promises.push(update.dealtGameCards(msg.user_id, msg.game_id, thisGame[0].next_order, 1))
       promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction
                     , thisGame[0].next_order+1, thisGame[0].top_discard, thisGame[0].game_state+1, msg.game_id, thisGame[0].required_color))
-      promises.push(update.setDrawnCard(msg.game_id, msg.user_id, topPileCard[0].card_id))
+      promises.push(update.setDrawnCard(msg.game_id, msg.user_id, topPileCard.card_id))
       promises.push(update.addToDo(msg.game_id, msg.user_id, 'settle'))
     } else {
       promises = []

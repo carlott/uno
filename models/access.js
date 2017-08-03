@@ -58,8 +58,9 @@ const GET_SEAT_COUNT = `SELECT seat_count
                         WHERE id = $1`
 
 const GET_TOP_CARDID = `SELECT GC.card_id
-                        FROM Game_Cards GC, Games G, 
-                        WHERE G.id = $1
+                        FROM Game_Cards GC, Games G
+                        WHERE GC.game_id = $1
+                        AND GC.game_id = G.id
                         AND GC.pile_order = G.next_order`
 
 const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_url
