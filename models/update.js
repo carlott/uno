@@ -79,11 +79,11 @@ const PLAY_NUMBER_CARD = `UPDATE Game_Cards
                             AND card_id = $2`
 
 const REQUIRED_ACTION = `UPDATE Players
-                         SET (to_do, drawn_card) = 
-                           ($3, (SELECT card_id
+                         SET drawn_card = 
+                           (SELECT card_id
                             FROM Game_Cards
                             WHERE game_id = $1
-                            AND pile_order = $4))
+                            AND pile_order = $4), to_do = $3
                          WHERE game_id = $1
                          AND user_id = $2`
 
