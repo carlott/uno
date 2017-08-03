@@ -116,7 +116,7 @@ function dealCard(msg, thisGame, thisGameCards, thisGamePlayers, handCards, isWo
     promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction, thisGame[0].next_order + addPenaltyOrder
                      , msg.word, ++thisGame[0].game_state, msg.game_id, null))
     if (!isWon)
-      promises.push(update.requiredAction(msg.game_id, msg.user_id, 'select-suit', thisGame[0].next_order))
+      promises.push(update.addToDo(msg.game_id, msg.user_id, 'select-suit'))
   } else if ( thisCard === 14 ) {
     // wild draw 4 card -- valid if no card in hand matches the color of the top discard (next seat draws 4 cards)
     var validWild4 = true
@@ -138,7 +138,7 @@ function dealCard(msg, thisGame, thisGameCards, thisGamePlayers, handCards, isWo
       promises.push(update.updateGame(thisGame[0].seat_turn, thisGame[0].direction, thisGame[0].next_order+4 + addPenaltyOrder
                        , msg.word, ++thisGame[0].game_state, msg.game_id, null))    
       if (!isWon)
-        promises.push(update.requiredAction(msg.game_id, msg.user_id, 'select-suit', thisGame[0].next_order))
+        promises.push(update.addToDo(msg.game_id, msg.user_id, 'select-suit'))
     } else {
       console.log('invalid wild 4 play')
     }

@@ -78,15 +78,6 @@ const PLAY_NUMBER_CARD = `UPDATE Game_Cards
                             WHERE game_id = $1
                             AND card_id = $2`
 
-const REQUIRED_ACTION = `UPDATE Players
-                         SET drawn_card = 
-                           (SELECT card_id
-                            FROM Game_Cards
-                            WHERE game_id = $1
-                            AND pile_order = $4), to_do = $3
-                         WHERE game_id = $1
-                         AND user_id = $2`
-
 const RESET_GAME = `UPDATE Games
                     SET (direction, next_order, top_discard, required_color, joinable, game_state)
                       = (1, null, null, null, true, 0)
@@ -101,6 +92,11 @@ const SAY_UNO = `UPDATE Players
                  SET say_uno = $3
                  WHERE game_id = $1
                  AND user_id = $2`
+
+const SET_DRAWN_CARD = `UPDATE Players
+                         SET drawn_card = $3
+                         WHERE game_id = $1
+                         AND user_id = $2`
 
 const SET_PILE_ORDER_NULL = `UPDATE Game_Cards
                              SET pile_order = null
@@ -176,14 +172,14 @@ module.exports = {
 
   playNumberCard: (game_id, card_id) => db.none(PLAY_NUMBER_CARD, [game_id, card_id]),
 
-  requiredAction: (game_id, user_id, to_do, next_order) => db.none(REQUIRED_ACTION, [game_id, user_id, to_do, next_order]),
-
   reSetGame: (game_id) => db.none(RESET_GAME, game_id),
 
   reSetPlayers: (game_id) => db.none(RESET_PLAYERS, game_id),
   
   say_uno: (game_id, user_id, trueOrFalse) => db.none(SAY_UNO, [game_id, user_id, trueOrFalse]),
 
+  setDrawnCard: (game_id, user_id, card_id) => db.none(SET_DRAWN_CARD, [game_id, user_id,card_id]),
+  
   setPileOrderNull: (game_id, pile_order) => db.none(SET_PILE_ORDER_NULL, [game_id, pile_order]),
 
   setReady: (ready, game_id, user_id) => db.none(SET_READY, [ready, game_id, user_id]),

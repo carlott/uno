@@ -57,6 +57,11 @@ const GET_SEAT_COUNT = `SELECT seat_count
                         FROM Games
                         WHERE id = $1`
 
+const GET_TOP_CARDID = `SELECT GC.card_id
+                        FROM Game_Cards GC, Games G, 
+                        WHERE G.id = $1
+                        AND GC.pile_order = G.next_order`
+
 const LOGIN = `SELECT Users.id, Users.password, Users.user_name, Avatars.image_url
                FROM Users, Avatars
                WHERE Users.avatar_id = Avatars.id
@@ -97,6 +102,7 @@ module.exports = {
   existEmailId: (email) => db.oneOrNone(EXIST_EMAIL_ID, email),
   gameCards: (game_id) => db.any(GAME_CARDS, game_id),
   getPileCardId: (game_id, pile_order) => db.oneOrNone(GET_PILE_CARDID, [game_id, pile_order]),
+  getTopCardId: (game_id) => db.one(GET_TOP_CARDID, game_id),
   thisGamePlayers: (game_id) => db.any(THISGAME_PLAYERS, game_id),
   thisPlayer: (game_id, user_id) => db.any(THIS_PLAYER, [game_id, user_id]),
   thisGame: (game_id) => db.any(THIS_GAME, game_id),

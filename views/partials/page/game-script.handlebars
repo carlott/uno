@@ -233,7 +233,6 @@ function sendOut(outPackage) {
 }
 
 function settleCard(newCard) {
-  console.log('drawn newCard ', newCard)
   var imageUrl = ''
   if (!isNaN(newCard)) {
     imageUrl = '/images/cards/' + cards[newCard].image_url
@@ -241,6 +240,10 @@ function settleCard(newCard) {
                     onclick="send(${newCard})" />`
     $('.show-tmp-card').html(image)
     $('.pass-button').attr('src', '/images/splash/pass-button.png')
+  } else {  // will not reach here, but for occational unknown issue from database of the server
+    toServer.game_state = gameState
+    toServer.word = 'draw'
+    sendOut(toServer);
   }
 }
 

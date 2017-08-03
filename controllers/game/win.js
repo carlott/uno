@@ -30,7 +30,7 @@ const win = msg => {
   .then(data => {
     var action = data[0].score >= 500 ? 'end' : 'next-round'
     msg.word = 'win'
-    return update.requiredAction(msg.game_id, msg.user_id, action, thisGame[0].next_order)
+    return update.addToDo(msg.game_id, msg.user_id, action)
   })
 }
 
