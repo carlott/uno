@@ -9,6 +9,7 @@ const joinGame = require('../controllers/join-game')
 const lobby = require('../controllers/lobby')
 const login = require('../controllers/login')
 const logout = require('../controllers/logout')
+const logoutGame = require('../controllers/logout-game')
 const signup = require('../controllers/signup')
 const emailAddress = require('../controllers/signup/email-address')
 const userState = require('../controllers/user-state')
@@ -36,6 +37,9 @@ router.post('/login', login)
 
 /* GET log out */
 router.get('/logout', logout)
+
+/* GET log out game */
+router.get('/logout-game', logoutGame)
 
 /* POST sign up page. */
 router.post('/signup', signup)

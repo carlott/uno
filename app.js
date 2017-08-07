@@ -47,10 +47,11 @@ app.use(session({
     return uuidv1()
   },
   secret: 'super problem solver',
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   expire: 2*3600*1000,
-  cookie: {path: '/', maxAge: 2*3600*1000}
+  cookie: {path: '/', maxAge: 2*3600*1000},
+  rolling: true
 }))
 
 app.use('/', index);

@@ -3,18 +3,18 @@
     <div id="seat-4">
       {{!--<p>row 1 left seat</p>--}}
       <img class="img-responsive players-image center-block" src="" />
+      <img class="img-responsive uno-sign center-block" src="" />
       <img class="img-responsive show-flag center-block" src="" />
       <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-      <img class="img-responsive uno-sign center-block" src="" />
     </div>
   </div>
   <div class="col-xs-2 col-sm-2 col-sm-offset-2">
     <div id="seat-5">
       {{!--<p>row 1 right seat</p>--}}
       <img class="img-responsive players-image center-block" src="" />
+      <img class="img-responsive uno-sign center-block" src="" />
       <img class="img-responsive show-flag center-block" src="" />
       <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-      <img class="img-responsive uno-sign center-block" src="" />
     </div>
   </div>
 </div>
@@ -23,9 +23,9 @@
     <div class="col-xs-2 col-sm-2 col-sm-offset-1">
       <div id="seat-3">
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
     <div class="col-xs-2 col-sm-2 col-sm-offset-2">
@@ -34,9 +34,9 @@
     <div class="col-xs-2 col-sm-2 col-sm-offset-2">
       <div id="seat-6">
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
 </div>
@@ -46,18 +46,17 @@
       <div id="seat-2">
         {{!--<p>row 3 left seat</p>--}}
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
     <div class="col-xs-2 col-sm-2">
       <img class="img-responsive left-arrow center-block" src="" />
     </div>
-    <div class="col-xs-4 col-sm-4">
-      <div id="discard-pile">
-        <img class="img-responsive discard-pile center-block" src="" />
-      </div>
+    <div class="col-xs-4 col-sm-4 discard-pile-div">
+      <canvas id="discard-pile" width="300" height="240">
+      </canvas>
     </div>
     <div class="col-xs-2 col-sm-2">
       <img class="img-responsive right-arrow center-block" src="" />
@@ -66,9 +65,9 @@
       <div id="seat-7">
         {{!--<p>row 3 right seat</p>--}}
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
 </div>
@@ -78,9 +77,9 @@
       <div id="seat-1">
         {{!--<p>row 4 left player seat</p>--}}
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
     <div class="col-xs-2 col-sm-2 col-sm-offset-1">
@@ -90,16 +89,18 @@
       <a href="#"><img class="img-responsive pass-button center-block" src="" /></a>
     </div>
     <div class="col-xs-2 col-sm-3">
-      <a href="#"><img class="img-responsive card-pile center-block" src="/images/splash/card-pile.png" /></a>
+      <a href="#"><img class="img-responsive card-pile center-block" src="/images/splash/card-pile.png"
+         onmouseenter="drawPile('/images/splash/card-pile-draw.png')"
+         onmouseleave="drawPile('/images/splash/card-pile.png')" /></a>
       <div class="show-tmp-card"></div>
     </div>
     <div class="col-xs-2 col-sm-2">
       <div id="seat-8">
         {{!--row 4 right player seat--}}
         <img class="img-responsive players-image center-block" src="" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block" src="" />
         <div style="text-align:center;"><b class="user-name"></b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
 </div>
@@ -117,9 +118,9 @@
       </div>
       <div id="seat-0" class="row game-row-5-2">
         <img class="img-responsive my-image center-block" src="/images/avatars/{{userImage}}" />
+        <img class="img-responsive uno-sign center-block" src="" />
         <img class="img-responsive show-flag center-block main-show-flag" src="" />
         <div style="text-align:center;"><b class="user-name">{{userName}}</b> <span class="badge"></span></div>
-        <img class="img-responsive uno-sign center-block" src="" />
       </div>
     </div>
 </div>

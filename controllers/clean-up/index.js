@@ -38,6 +38,11 @@ function cleanGames() {
   })
   .then(() => {
     broadcastTo('lobby-list', 'reload-page')
+    if (gameIds.length > 0) {
+      gameIds.forEach(id => {
+        broadcastTo(`g-${id}`, { group: id, order: 'logout-game' })
+      })
+    }
   })
   .catch(err => {
     console.log(err)

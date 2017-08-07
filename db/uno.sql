@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS Messages (
 DROP TABLE IF EXISTS Game_Cards CASCADE;
 
 CREATE TABLE IF NOT EXISTS Game_Cards (
-  game_id INTEGER REFERENCES Games(id),
+  game_id INTEGER REFERENCES Games(id) ON DELETE CASCADE,
   card_id INTEGER REFERENCES Cards(id),
   user_id INTEGER,
   pile_order INTEGER,

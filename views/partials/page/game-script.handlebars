@@ -10,7 +10,8 @@ const FOCUS_LIGHT = '/images/splash/focus.png'
 const SUIT_SIGN = {'r': '/images/splash/red-suit.png', 'y': '/images/splash/yellow-suit.png', 'b': '/images/splash/blue-suit.png', 'g': '/images/splash/green-suit.png'}
 const SEAT_IDs = ['seat-0', 'seat-4', 'seat-5', 'seat-2', 'seat-7', 'seat-1'
                  , 'seat-6', 'seat-3', 'seat-8']
-var winInfo = {}              
+var winInfo = {}
+var discardDrawn = null
 
 $(function () {
   /* variables for javascript from handlbars */
@@ -121,12 +122,16 @@ function groupHandler(msg) {
       break;
     case 'start':
       showStart(msg)
+      clearCanvas('discard-pile', 300, 280)
       setTimeout(() => {
         send('refresh')
-      }, 2000)
+      }, 1000)
       break;
     case 'uno':
       drawPlayers(msg)
+      break;
+    case 'logout-game':
+      logoutGame(msg)
       break;
     default:
       defaultDraw(msg)
@@ -139,6 +144,11 @@ function defaultDraw(msg) {
   drawPlayers(msg)
   drawRequiredSuit(msg)
   if (msg.game[0].game_state === 1) $('#noticeModal').modal('hide')
+}
+
+function logoutGame(msg) {
+  alert(`Game-${msg.group} terminated caused by timeout!`)
+  $.get('/logout-game', () => {})
 }
 
 function redraw(msg) {
@@ -254,24 +264,75 @@ function drawRequiredSuit(msg) {
 }
 
 function showHandCards(handCards) {
-    var image = '', oneCard = ''    
-    handCards.forEach(element => {
-      var cardId = element.card_id
+    var image = '', oneCard = '', num = handCards.length
+    var offsetX = 40, offsetY = 15
+    var leftX = ($('.hand-cards').width()-num*offsetX)/2, topY = 50
+    var rotateDegree = 10
+    var leftDegree = getDegree(num, rotateDegree)    
+    for (var i = 0; i < num; i++) {
+      var cardId = handCards[i].card_id
       oneCard = '/images/cards/' + cards[cardId].image_url
       image += `<img class="card" src="${oneCard}" ondragend="send(${cardId})"
-                  onclick="send(${cardId})" />`
-    })
+                  onclick="send(${cardId})" style="transform: rotate(${leftDegree}deg);
+                  left:${leftX}px; top:${topY}px;" onmouseenter="popUp(this)"
+                  onmouseleave="setBack(this)" />`
+      leftDegree += rotateDegree
+      leftX += offsetX
+      topY = i < num/2 -1 ? topY - offsetY : topY + offsetY
+    }
     $('.hand-cards').html(image)
 }
 
+function popUp(card) {
+  var y = parseInt(card.style.top, 10)
+  card.style.top = `${y-30}px`
+}
+
+function setBack(card) {
+  var y = parseInt(card.style.top, 10)
+  card.style.top = `${y+30}px`
+} 
+
+function getDegree(num, degree) {
+  return -1*num/2*degree
+}
+
 function topDiscard(msg) {
-  if(cards[msg.game[0].top_discard]) {
-    var discard = '/images/cards/' + cards[msg.game[0].top_discard].image_url 
+  $('#discard-pile').attr('style', `left:${($('.discard-pile-div').width()-300)/2}px`)
+  var card = msg.game[0].top_discard
+  if (discardDrawn === card) return null
+  discardDrawn = card
+  if(cards[card]) {
+    var discard = '/images/cards/' + cards[card].image_url 
   }else{
     var discard = '';
   }
 
-  $('.discard-pile').attr('src', discard)
+  // for canvas draw
+  var ctx = document.getElementById('discard-pile').getContext('2d')
+  var img = new Image()
+  img.onload = function() {
+    var x = getRandomInt(65, 150)
+    var y = getRandomInt(30, 80)
+    ctx.width = this.naturalWidth*0.45
+    ctx.height = this.naturalHeight*0.45
+    ctx.translate(150, 120)
+    ctx.rotate((Math.PI/180) * getRandomInt(0, 180))
+    ctx.translate(-150, -120)
+    ctx.drawImage(img, x, y, ctx.width, ctx.height)
+  }
+  img.src = discard
+}
+
+function clearCanvas(canvasId, width, height) {
+  var ctx = document.getElementById(canvasId).getContext('2d')
+  ctx.clearRect(0, 0, width, height)
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
 function drawArrow(msg) {
@@ -305,10 +366,14 @@ function drawPlayer(player, msg) {
   var flag = ''
   if (gameState === 0 && player.ready_play) flag = READY_FLAG
   else if (player.seat_number === msg.game[0].seat_turn) flag = FOCUS_LIGHT
-  else if (gameState > 0) flag = player.seat_number !== {{{userInfo}}}.userSeat ? INHANDS : ''
+  else if (gameState > 0) flag = player.seat_number !== msg.game[0].seat_turn ? INHANDS : ''
   $(`#${seatList[seat]} .show-flag`).attr('src', flag)
-  if (player.say_uno) $(`#${seatList[seat]} .uno-sign`).attr('src', SAY_UNO)
-    else $(`#${seatList[seat]} .uno-sign`).attr('src', '')
+  if (player.say_uno) {
+    if (player.seat_number !== msg.game[0].seat_turn)
+      $(`#${seatList[seat]} .show-flag`).attr('src', '')
+    $(`#${seatList[seat]} .uno-sign`).attr('src', SAY_UNO)
+  }
+  else $(`#${seatList[seat]} .uno-sign`).attr('src', '')
   if (player.score > 0) $(`#${seatList[seat]} .badge`).html(player.score)
 }
 
@@ -356,7 +421,7 @@ function showPenal() {
   $('#noticeModal').modal('show')
   setTimeout(() => {
     $('#noticeModal').modal('hide')
-  }, 3000)
+  }, 1500)
 }
 
 function showStart() {
@@ -386,6 +451,10 @@ function mapSeat(seatNum, length) {
 function pickColor(order) {
   if(order === 'select-suitpenalty') $('#selectSuitModal h4').html('You have got two cards penalty for not calling "Uno"')
   $('#selectSuitModal').modal('show')
+}
+
+function drawPile(cardPile) {
+  $('.card-pile').attr('src', cardPile)
 }
 
 </script>
