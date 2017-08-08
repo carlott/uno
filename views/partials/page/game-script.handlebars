@@ -42,7 +42,7 @@ $(function () {
   socket.on(GAME_ROOM, function(msg) {
     if (gameId === msg.group) 
       groupHandler(msg)
-{{!-- console.log('\nfrom server to group: ', JSON.stringify(msg)) --}}
+{{!-- console.log('\nfrom server to group: ', JSON.stringify(msg))  --}}
   })
 
 })
@@ -105,7 +105,7 @@ function userHandler(msg) {
 
 function groupHandler(msg) {
   thisGroup = msg
-  gameState = msg.game[0].game_state
+  gameState = typeof msg.game[0].game_state !== 'undefined' ? msg.game[0].game_state : gameState
   switch (msg.order) {
     case 'readyPlay':
     case 'none':
@@ -147,8 +147,10 @@ function defaultDraw(msg) {
 }
 
 function logoutGame(msg) {
+  console.log('log out: ', JSON.stringify(msg))
   alert(`Game-${msg.group} terminated caused by timeout!`)
-  $.get('/logout-game', () => {})
+  window.location.href = '/logout-game'
+  {{!-- $.get('/logout-game', () => {}) --}}
 }
 
 function redraw(msg) {
@@ -366,7 +368,8 @@ function drawPlayer(player, msg) {
   var flag = ''
   if (gameState === 0 && player.ready_play) flag = READY_FLAG
   else if (player.seat_number === msg.game[0].seat_turn) flag = FOCUS_LIGHT
-  else if (gameState > 0) flag = player.seat_number !== msg.game[0].seat_turn ? INHANDS : ''
+  else if (gameState > 0) flag = player.seat_number !== msg.game[0].seat_turn 
+            && player.seat_number !== {{{userInfo}}}.userSeat ? INHANDS : ''
   $(`#${seatList[seat]} .show-flag`).attr('src', flag)
   if (player.say_uno) {
     if (player.seat_number !== msg.game[0].seat_turn)

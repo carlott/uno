@@ -23,7 +23,7 @@ const EXIST_EMAIL_ID =  `SELECT id, email
                           FROM Users
                           WHERE email = $1`
 
-const GET_GAME_TIMESTAMPS = `SELECT id, time_stamp
+const GET_GAME_TIMESTAMPS = `SELECT id, time_stamp, game_state
                              FROM Games`
 
 const GET_GAMES = `SELECT P.game_id, A.image_url, U.user_name, G.joinable

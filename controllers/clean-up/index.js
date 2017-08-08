@@ -8,7 +8,7 @@ const cleanUp = () => {
 
   setInterval(() => {
     cleanGames()
-  }, 3600*1000)
+  }, 7*60*1000)
 
   setInterval(() => {
     cleanMessages()
@@ -16,14 +16,15 @@ const cleanUp = () => {
 }
 
 function cleanGames() {
-  var gameIds = []
+  var gameIds = [], games
   var current = new Date()
   var lastActive, promises = []
   return access.getGameTimestamps()
   .then(timestamps => {
+    games = timestamps
     timestamps.forEach(stamp => {
       lastActive = new Date(stamp.time_stamp)
-      if (current - lastActive >= 3600000)
+      if (current - lastActive >= 13*60*1000)
         gameIds.push(stamp.id)
     })
     if (gameIds.length > 0) {
@@ -37,12 +38,14 @@ function cleanGames() {
     return Promise.all(promises)
   })
   .then(() => {
-    broadcastTo('lobby-list', 'reload-page')
     if (gameIds.length > 0) {
-      gameIds.forEach(id => {
-        broadcastTo(`g-${id}`, { group: id, order: 'logout-game' })
+      broadcastTo('lobby-list', 'reload-page')
+      games.forEach(g => {
+        if (gameIds.indexOf(g.id) >= 0)
+          broadcastTo(`g-${g.id}`, { group: g.id, order: 'logout-game', game: [{game_state: g.game_state}] })
       })
     }
+    return []
   })
   .catch(err => {
     console.log(err)
