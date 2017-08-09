@@ -16,7 +16,7 @@ const socketServer = (app, server) => {
     })
 
     socket.on('chat', function(msg) {
-      replacTags(msg)
+      replaceTags(msg)
       io.emit(msg.toChatRoom, msg)
       chatLog(msg)
     })
@@ -42,7 +42,7 @@ function notifyLobby(gameId) {
   io.emit('lobby-list', { gameStarted: true, game_id: gameId })
 }
 
-function replacTags(msg) {
+function replaceTags(msg) {
   msg.message = msg.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
