@@ -16,6 +16,7 @@ const socketServer = (app, server) => {
     })
 
     socket.on('chat', function(msg) {
+      replacTags(msg)
       io.emit(msg.toChatRoom, msg)
       chatLog(msg)
     })
@@ -39,6 +40,10 @@ function broadcast (channel, msg) {
 
 function notifyLobby(gameId) {
   io.emit('lobby-list', { gameStarted: true, game_id: gameId })
+}
+
+function replacTags(msg) {
+  msg.message = msg.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
 module.exports = { server: socketServer,
