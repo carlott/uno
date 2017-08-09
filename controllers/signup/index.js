@@ -11,6 +11,7 @@ const signup = (req, res) => {
       // register user here
       bcrypt.hash(req.body.password, saltRounds)
       .then(hash => {
+        replaceTags(req)
         return update.newUser(req.body.avatarId, hash, req.body.email, req.body.userName)
       })
       .then(() => {
@@ -45,6 +46,10 @@ const signup = (req, res) => {
   .catch (err => {
     console.log(err)
   })
+}
+
+function replaceTags(request) {
+  request.body.userName = request.body.userName.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
 module.exports = signup
