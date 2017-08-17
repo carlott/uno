@@ -161,7 +161,6 @@ function countNeeds(msg) {
 function needNewPile(msg, thisGame) {
   var nextOrder = thisGame[0].next_order
   var requiredCards = countNeeds(msg)
-  console.log('next order will be ', nextOrder + requiredCards, ' >=108 ', (nextOrder + requiredCards) >= 108)
   return (nextOrder + requiredCards) >= 108
 }
 

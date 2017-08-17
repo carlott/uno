@@ -147,10 +147,8 @@ function defaultDraw(msg) {
 }
 
 function logoutGame(msg) {
-  console.log('log out: ', JSON.stringify(msg))
   alert(`Game-${msg.group} terminated caused by timeout!`)
   window.location.href = '/logout-game'
-  {{!-- $.get('/logout-game', () => {}) --}}
 }
 
 function redraw(msg) {
@@ -166,8 +164,6 @@ function send(word) {
     toServer.game_state = gameState
     toServer.word = word
     sendOut(toServer);
-  } else {
-    console.log(`ignored the invalid send '${word}'`)
   }
 }
 
